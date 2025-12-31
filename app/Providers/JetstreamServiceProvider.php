@@ -10,11 +10,18 @@ use Laravel\Jetstream\Jetstream;
 class JetstreamServiceProvider extends ServiceProvider
 {
     /**
+     * JetstreamServiceProvider
+     * --------------------------------------------------------
+     * Arabic: مزوّد Jetstream لإعداد صلاحيات واجهة برمجة التطبيقات وحذف المستخدمين.
+     * English: Configures Jetstream permissions and bindings (e.g., delete user action).
+     * No behavior changes; comments only.
+     */
+    /**
      * Register any application services.
      */
     public function register(): void
     {
-        //
+        // Register any Jetstream-specific services here.
     }
 
     /**
@@ -26,6 +33,7 @@ class JetstreamServiceProvider extends ServiceProvider
 
         Jetstream::deleteUsersUsing(DeleteUser::class);
 
+        // Vite prefetch optimization
         Vite::prefetch(concurrency: 3);
     }
 

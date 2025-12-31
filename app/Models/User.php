@@ -22,8 +22,9 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
 
     /**
-     * The attributes that are mass assignable.
+     * Mass assignable attributes.
      *
+     * الحقول التي يمكن تعبئتها بالجُمل (mass assignable).
      * @var array<int, string>
      */
     protected $fillable = [
@@ -34,8 +35,9 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Hidden attributes for array / JSON serialization.
      *
+     * الحقول المخفية عند تحويل النموذج إلى مصفوفة أو JSON.
      * @var array<int, string>
      */
     protected $hidden = [
@@ -46,8 +48,9 @@ class User extends Authenticatable
     ];
 
     /**
-     * The accessors to append to the model's array form.
+     * Attributes appended to the model's array form (accessors).
      *
+     * سمات تضاف تلقائياً عند تحويل النموذج إلى مصفوفة.
      * @var array<int, string>
      */
     protected $appends = [
@@ -55,8 +58,9 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Attribute casting definitions.
      *
+     * يحول القيم ل Types مناسبة عند الوصول لها.
      * @return array<string, string>
      */
     protected function casts(): array

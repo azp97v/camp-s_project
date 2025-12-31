@@ -1,3 +1,9 @@
+{{--
+    Navigation Component
+    --------------------------------------------------------
+    مكوّن الملاحة العلوية يحتوي على الشعار وقائمة الروابط وقائمة المستخدم.
+    English: Top navigation component with responsive menu and user dropdown. No behavior changes.
+--}}
 <nav x-data="{ open: false }" class="glass border-b border-slate-200/50 sticky top-0 z-50 shadow-md">
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,15 +47,14 @@
                             {{ __('الملف الشخصي') }}
                         </x-dropdown-link>
 
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('تسجيل الخروج') }}
-                            </x-dropdown-link>
-                        </form>
+                        @if(View::hasSection('link_logout'))
+                            <a href="#" id="logout-link" class="btn btn-glass" style="width:100%;text-align:right">{{ __('تسجيل الخروج') }}</a>
+                        @else
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="btn btn-glass" style="width:100%;text-align:right">{{ __('تسجيل الخروج') }}</button>
+                            </form>
+                        @endif
                     </x-slot>
                 </x-dropdown>
             </div>
@@ -86,15 +91,14 @@
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('تسجيل الخروج') }}
-                    </x-responsive-nav-link>
-                </form>
+                @if(View::hasSection('link_logout'))
+                    <a href="#" id="logout-link" class="btn btn-glass" style="width:100%;text-align:right">{{ __('تسجيل الخروج') }}</a>
+                @else
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-glass" style="width:100%;text-align:right">{{ __('تسجيل الخروج') }}</button>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

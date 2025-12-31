@@ -24,28 +24,43 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class TaskController extends Controller
 {
     use AuthorizesRequests;
+    // ---------------------------------------------------------------------------------
+    // TaskController
+    // ---------------------------------------------------------------------------------
+    // هذا الكنترولر مسؤول عن إدارة المهام (Tasks): CRUD + إجراءات المؤقّت (start/stop/finish/cancel)
+    // This controller manages Task CRUD and timer-related transitions. It returns JSON
+    // for AJAX requests and redirects for normal web interactions.
 
     public function store(Request $request, Goal $goal)
     {
-        $this->authorize('view', $goal);
+        $this->authorize('update', $goal);
 
         $data = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:tasks,title,NULL,id,goal_id,' . $goal->id,
             'description' => 'nullable|string',
             'deadline' => 'nullable|date',
-            // للمهمة: مدتها تُدخَل بالدقائق أو الساعات
-            'estimated_duration_input' => 'nullable|numeric|min:0',
-            'estimated_unit' => 'nullable|in:minutes,hours',
+            'priority' => 'nullable|in:low,medium,high',
+            // مدة المهمة إجبارية
+            'estimated_duration_input' => 'required|numeric|min:1',
+            'estimated_unit' => 'required|in:minutes,hours',
+        ], [
+            'title.unique' => 'هذا الاسم موجود بالفعل في نفس الهدف. يرجى اختيار اسم آخر.',
         ]);
-        $estimatedSeconds = 0;
-        if (!empty($data['estimated_duration_input']) && !empty($data['estimated_unit'])) {
-            $estimatedSeconds = match($data['estimated_unit']) {
-                'minutes' => (int)$data['estimated_duration_input'] * 60,
-                'hours' => (int)$data['estimated_duration_input'] * 3600,
-            };
-        }
 
-        $task = $goal->tasks()->create(array_merge($data, ['estimated_duration_seconds' => $estimatedSeconds]));
+        $estimatedSeconds = match($data['estimated_unit']) {
+            'minutes' => (int)$data['estimated_duration_input'] * 60,
+            'hours' => (int)$data['estimated_duration_input'] * 3600,
+        };
+
+        // Create the task under the parent goal. Keep estimated seconds normalized.
+        $payload = [
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'deadline' => $data['deadline'] ?? null,
+            'priority' => $data['priority'] ?? 'medium',
+            'estimated_duration_seconds' => $estimatedSeconds,
+        ];
+        $task = $goal->tasks()->create($payload);
 
         if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json(['message' => 'تم إنشاء المهمة.', 'task' => $task]);
@@ -54,10 +69,125 @@ class TaskController extends Controller
         return redirect()->route('tasks.show', $task)->with('success', 'تم إنشاء المهمة.');
     }
 
+    public function toggle(Request $request, Task $task)
+    {
+        $this->authorize('update', $task->goal);
+
+        // If the task is already completed, do not allow unchecking it.
+        if ($task->status === 'completed') {
+            if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن التراجع عن وضع "مكتملة" بعد تأكيدها.'
+                ], 403);
+            }
+
+            return back()->withErrors(['status' => 'لا يمكن التراجع عن وضع مكتملة بعد تأكيدها.']);
+        }
+
+        // If attempting to mark as completed, verify the task is actually finished
+        $canMarkCompleted = false;
+
+        // A task is considered finished when it has an estimated duration and
+        // the total tracked seconds is greater or equal to that estimate.
+        if ($task->estimated_duration_seconds && $task->total_tracked_seconds >= $task->estimated_duration_seconds) {
+            $canMarkCompleted = true;
+        }
+
+        if (! $canMarkCompleted) {
+            if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن وضع علامة "مكتملة" إلا بعد إتمام المدة المسجلة للمهمة.'
+                ], 422);
+            }
+
+            return back()->withErrors(['status' => 'لا يمكن وضع علامة مكتملة إلا بعد إتمام المهمة.']);
+        }
+
+        // Mark as completed
+        $task->update(['status' => 'completed']);
+
+        if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json(['success' => true, 'message' => 'تم تأكيد إنجاز المهمة.', 'task' => $task]);
+        }
+
+        return back()->with('success', 'تم تحديث حالة المهمة.');
+    }
+
+    // Display tasks for a specific goal
+    public function indexByGoal(Goal $goal)
+    {
+        // Ensure the current user can view this goal
+        $this->authorize('view', $goal);
+
+        // Redirect to the unified goal show page which now contains the tasks
+        return redirect()->route('goals.show', $goal);
+    }
+
     public function show(Task $task)
     {
+        // Ensure the current user may view the task's parent goal, then show task.
         $this->authorize('view', $task->goal);
         return view('tasks.show', compact('task'));
+    }
+
+    // List all tasks for current user
+    public function index()
+    {
+        // Display all tasks from all user's goals
+        $user = auth()->user();
+        $allTasks = Task::whereHas('goal', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->with('goal')->latest()->get();
+
+        return view('tasks-all', compact('allTasks'));
+    }
+
+    // Render edit form for a task
+    public function edit(Task $task)
+    {
+        // Render edit form; policy ensures user may update the parent goal.
+        $this->authorize('update', $task->goal);
+        return view('tasks.edit', compact('task'));
+    }
+
+    // Update task metadata (title, description, deadline, estimated duration)
+    public function update(Request $request, Task $task)
+    {
+        // Validate and apply updates to task metadata.
+        $this->authorize('update', $task->goal);
+
+        $data = $request->validate([
+            'title' => 'required|string|max:255|unique:tasks,title,' . $task->id . ',id,goal_id,' . $task->goal_id,
+            'description' => 'nullable|string',
+            'deadline' => 'nullable|date',
+            'estimated_duration_input' => 'required|numeric|min:1',
+            'estimated_unit' => 'required|in:minutes,hours',
+            'priority' => 'nullable|in:low,medium,high',
+        ], [
+            'title.unique' => 'هذا الاسم موجود بالفعل في نفس الهدف. يرجى اختيار اسم آخر.',
+        ]);
+
+        $estimatedSeconds = match($data['estimated_unit']) {
+            'minutes' => (int)$data['estimated_duration_input'] * 60,
+            'hours' => (int)$data['estimated_duration_input'] * 3600,
+        };
+
+        // Update model fields (no behavioral change)
+        $task->update([
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'deadline' => $data['deadline'] ?? null,
+            'estimated_duration_seconds' => $estimatedSeconds,
+            'priority' => $data['priority'] ?? ($task->priority ?? 'medium'),
+        ]);
+
+        if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json(['success' => true, 'message' => 'تم تحديث المهمة.', 'task' => $task]);
+        }
+
+        return redirect()->route('tasks.show', $task)->with('success', 'تم تحديث المهمة.');
     }
 
     public function destroy(Task $task)
@@ -181,6 +311,7 @@ class TaskController extends Controller
                 $task->update([
                     'status' => 'idle',
                     'total_tracked_seconds' => $task->total_tracked_seconds + $deduct,
+                    'last_finished_session_seconds' => $deduct,
                     'last_session_seconds' => 0,
                 ]);
             });
@@ -233,4 +364,36 @@ class TaskController extends Controller
             return back()->with('error', 'حدث خطأ أثناء إلغاء الجلسة: ' . $e->getMessage());
         }
     }
+
+    // Update task priority via AJAX
+    public function updatePriority(Request $request, Task $task)
+    {
+        $this->authorize('update', $task->goal);
+
+        $data = $request->validate([
+            'priority' => 'required|in:low,medium,high',
+        ]);
+
+        try {
+            $task->update([
+                'priority' => $data['priority'],
+            ]);
+
+            $task->refresh();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تحديث الأولوية بنجاح',
+                'task' => $task,
+                'priority' => $task->priority,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء تحديث الأولوية: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
+
+

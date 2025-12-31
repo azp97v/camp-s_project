@@ -1,3 +1,9 @@
+{{--
+    Component: responsive-nav-link
+    --------------------------------------------------------
+    Arabic: رابط متجاوب لشريط التنقل يظهر في القوائم الصغيرة (mobile).
+    English: Mobile-friendly navigation link with active state styling.
+--}}
 @props(['active'])
 
 @php

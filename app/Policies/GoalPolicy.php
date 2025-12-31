@@ -8,6 +8,12 @@ use App\Models\User;
 class GoalPolicy
 {
     /**
+     * GoalPolicy
+     * --------------------------------------------------------
+     * Arabic: سياسة الوصول للأهداف — تتحقق أن صاحب الحساب هو المالك.
+     * English: Authorization policy ensuring only the goal owner can view/update/delete.
+     */
+    /**
      * Determine whether the user can view the goal.
      */
     public function view(User $user, Goal $goal): bool

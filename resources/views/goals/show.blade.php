@@ -1,145 +1,307 @@
-@extends('layouts.main')
-@section('title',$goal->title)
-@section('page-title',$goal->title)
+{{--
+    Unified Goal Show (merged design)
+    --------------------------------------------------------
+    This view merges the visual design of `resources/views/tasks.blade.php`
+    into the goal show page so `/goals/{id}` contains the tasks list and
+    add-task form in the tasks-style layout.
+--}}
+@extends('layouts.app')
+
+@section('title', $goal->title . ' - المهام')
+@section('page-title', '🎯 ' . $goal->title)
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/tasks.css') }}">
+@endpush
 
 @section('content')
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <section class="goal-show-section tasks-section" dir="rtl" lang="ar">
+        <div class="container">
+            <!-- Goal Header with Progress Circle (tasks design) -->
+            @php
+                $completedCount = $tasks->where('status', 'completed')->count();
+                $totalCount = $tasks->count();
+                $progressPercent = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
+                $strokeDashOffset = 220 - ($progressPercent / 100) * 220;
 
-        <div class="lg:col-span-2">
-            <div class="glass p-8 rounded-2xl animate-on-load card-hover border border-white/20 shadow-lg">
-                <div class="flex items-start justify-between gap-4 mb-6">
-                    <div>
-                        <h2 class="text-3xl font-bold text-slate-900 mb-2">🎯 {{ $goal->title }}</h2>
-                        @if($goal->description)
-                            <p class="text-slate-600 text-lg">{{ $goal->description }}</p>
-                        @endif
+                // Keep goal duration stats from previous design
+                $percent = $goal->total_duration_seconds > 0 ? round((($goal->total_duration_seconds - $goal->remaining_duration_seconds) / $goal->total_duration_seconds) * 100) : 0;
+                $rem = $goal->remaining_duration_seconds;
+                if ($rem >= 86400) {
+                    $d = floor($rem/86400);
+                    $h = floor(($rem%86400)/3600);
+                    $remainStr = $d . ' يوم' . ($h? ' و '.$h.' ساعة':'');
+                } else {
+                    $h = floor($rem/3600);
+                    $m = floor(($rem%3600)/60);
+                    $remainStr = $h . ' ساعة' . ($m? ' و '.$m.' دقيقة':'');
+                }
+            @endphp
+
+            <div class="goal-header glass">
+                <div class="goal-info" style="flex:1;">
+                    <h1 class="goal-title">🎯 {{ $goal->title }}</h1>
+                    @if($goal->description)
+                        <p class="goal-meta">{{ $goal->description }}</p>
+                    @endif
+                    <div style="margin-top:1rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                            <span class="completed-count" style="font-size:0.95rem;">✅ {{ $completedCount }} من {{ $totalCount }} مهمة مكتملة</span>
+                        </div>
+                        <div class="progress-bar" style="height:8px; border-radius:4px;">
+                            <div class="progress-fill" style="width: {{ $progressPercent }}%;"></div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="space-y-6">
-                    @php
-                        $percent = $goal->total_duration_seconds > 0 ? round((($goal->total_duration_seconds - $goal->remaining_duration_seconds) / $goal->total_duration_seconds) * 100) : 0;
-                        $rem = $goal->remaining_duration_seconds;
-                        if ($rem >= 86400) {
-                            $d = floor($rem/86400);
-                            $h = floor(($rem%86400)/3600);
-                            $remainStr = $d . ' يوم' . ($h? ' و '.$h.' ساعة':'');
-                        } else {
-                            $h = floor($rem/3600);
-                            $m = floor(($rem%3600)/60);
-                            $remainStr = $h . ' ساعة' . ($m? ' و '.$m.' دقيقة':'');
-                        }
-                    @endphp
-
-                     <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="font-semibold text-slate-900">تقدم الهدف</span>
-                            <span class="text-2xl font-bold text-blue-600">{{ $percent }}%</span>
-                        </div>
-                        <div class="progress-outer rounded-full h-4 bg-gradient-to-r from-slate-200 to-slate-100 overflow-hidden">
-                            <div class="progress-inner h-full rounded-full" data-percent="{{ $percent }}" style="width:0%;background:linear-gradient(90deg,#3b82f6,#8b5cf6,#ec4899)"></div>
-                        </div>
-                        <div class="grid grid-cols-3 gap-4 mt-6">
-                            <div class="text-center">
-                                <div class="text-sm text-slate-600">المتبقي</div>
-                                <div class="text-lg font-bold text-slate-900">{{ $remainStr }}</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-sm text-slate-600">الإجمالي</div>
-                                <div class="text-lg font-bold text-slate-900">{{ gmdate('H:i:s', $goal->total_duration_seconds) }}</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-sm text-slate-600">المنجز</div>
-                                <div class="text-lg font-bold text-blue-600">{{ gmdate('H:i:s', $goal->total_duration_seconds - $goal->remaining_duration_seconds) }}</div>
-                            </div>
-                        </div>
+                <div class="goal-progress">
+                    <div class="progress-circle">
+                        <svg width="100" height="100" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--glass-border)" stroke-width="6"/>
+                            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--accent-color)" stroke-width="6"
+                                    stroke-dasharray="220" stroke-dashoffset="{{ $strokeDashOffset }}" stroke-linecap="round"
+                                    style="transform: rotate(-90deg); transform-origin: center;"/>
+                        </svg>
+                        <span class="progress-text" style="font-size:1.5rem;">{{ $progressPercent }}%</span>
                     </div>
-
-
-                    <div>
-                            {{-- The tasks list area is updated by `resources/js/ui.js` when a task is created via AJAX.
-                                - #tasks-count: numeric badge for quick updates
-                                - #tasks-list: container where new task items are injected
-                            --}}
-                            <h3 class="text-2xl font-bold text-slate-900 mb-4">📋 المهام (<span id="tasks-count">{{ $tasks->count() }}</span>)</h3>
-
-                        @if($tasks->isEmpty())
-                            <div class="p-6 text-center bg-slate-50 rounded-lg">
-                                <p class="text-slate-600">لا توجد مهام حتى الآن</p>
-                            </div>
-                        @else
-                            {{-- #tasks-list: existing tasks are rendered here; new tasks are inserted at the top by JS. --}}
-                            <div id="tasks-list" class="space-y-3">
-                                @foreach($tasks as $task)
-                                    <a href="{{ route('tasks.show', $task) }}" class="glass p-4 rounded-lg card-hover border border-white/20 block hover:shadow-md transition-all group">
-                                        <div class="flex justify-between items-start gap-3">
-                                            <div class="flex-1 min-w-0">
-                                                <h4 class="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">{{ $task->title }}</h4>
-                                                @if($task->description)
-                                                    <p class="text-sm text-slate-600 line-clamp-1">{{ $task->description }}</p>
-                                                @endif
-                                                <div class="flex gap-3 mt-2 text-xs text-slate-500">
-                                                    <span>🕐 {{ $task->status === 'running' ? 'جاري' : ($task->status === 'stopped' ? 'موقوف' : 'معلق') }}</span>
-                                                    <span>⏱️ {{ gmdate('H:i:s', $task->total_tracked_seconds) }}</span>
-                                                </div>
-                                            </div>
-                                            <form method="POST" action="{{ route('tasks.destroy', $task) }}" class="flex-shrink-0" onclick="event.stopPropagation();">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg p-2 transition-all" onclick="return confirm('حذف هذه المهمة؟')">
-                                                    🗑️
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </a>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="mt-8 pt-6 border-t border-slate-200/30">
-                    <a href="{{ route('goals.index') }}" class="px-4 py-2 text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-2">
-                        ← رجوع للأهداف
-                    </a>
                 </div>
             </div>
-        </div>
 
+            <!-- Tasks List (tasks design) -->
+            <div class="tasks-list" style="margin-top:2rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <h3 class="section-title">📋 قائمة المهام ({{ $tasks->count() ?? 0 }} مهمة)</h3>
+                    <div style="display:flex; gap:0.75rem;">
+                        <select id="filterTasks" class="form-input" style="padding:0.5rem; border-radius:6px; font-size:0.9rem;">
+                            <option value="all">الكل</option>
+                            <option value="pending">المتبقية</option>
+                            <option value="completed">المكتملة</option>
+                            <option value="overdue">المتأخرة</option>
+                        </select>
+                        <select id="sortTasks" class="form-input" style="padding:0.5rem; border-radius:6px; font-size:0.9rem;">
+                            <option value="newest">الأحدث</option>
+                            <option value="oldest">الأقدم</option>
+                            <option value="priority">الأولوية</option>
+                            <option value="deadline">الموعد</option>
+                        </select>
+                    </div>
+                </div>
 
-                <div>
-            <div class="glass p-6 rounded-2xl sticky top-24 border border-white/20 shadow-lg">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">➕ مهمة جديدة</h3>
-                {{-- The creation form uses `ajax-form` and will POST via fetch; `resources/js/ui.js`
-                     will inject the returned `task` JSON into `#tasks-list` to avoid a full reload. --}}
-                <form method="POST" action="{{ route('tasks.store', $goal) }}" class="ajax-form space-y-4">
+                @if($tasks && $tasks->count() > 0)
+                    <div class="tasks-grid" id="tasksContainer">
+                        @php
+                            $overdueTasks = [];
+                            $now = \Carbon\Carbon::now();
+                        @endphp
+                        @foreach($tasks as $task)
+                            @php
+                                $isOverdue = $task->deadline && $task->deadline < $now && $task->status !== 'completed';
+                                if ($isOverdue) $overdueTasks[] = $task->id;
+                            @endphp
+                            <div class="task-item glass {{ $task->status === 'completed' ? 'completed' : '' }} {{ $isOverdue ? 'overdue' : '' }}"
+                                 data-task-id="{{ $task->id }}"
+                                 data-status="{{ $task->status }}"
+                                 data-priority="{{ $task->priority ?? 'medium' }}"
+                                 data-deadline="{{ $task->deadline?->timestamp ?? 0 }}"
+                                 data-created="{{ $task->created_at?->timestamp ?? 0 }}">
+
+                                <form action="{{ route('tasks.toggle', $task) }}" method="POST" class="task-checkbox">
+                                    @csrf
+                                    @method('POST')
+                                    <input
+                                        type="checkbox"
+                                        id="task-{{ $task->id }}"
+                                        class="task-check"
+                                        {{ $task->status === 'completed' ? 'checked' : '' }}
+                                        onchange="this.form.submit()"
+                                    >
+                                    <label for="task-{{ $task->id }}" class="task-check-label"></label>
+                                </form>
+
+                                <div style="flex:1;">
+                                    @if($task->status === 'completed')
+                                        <div class="task-content" title="المهمة مكتملة">
+                                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                                                <h4 class="task-name">{{ $task->title }}</h4>
+                                                <span class="priority-badge priority-{{ $task->priority ?? 'medium' }}">{{ $task->priority === 'high' ? '🔴 عالية' : ($task->priority === 'low' ? '🟢 منخفضة' : '🟡 متوسطة') }}</span>
+                                            </div>
+                                            <p class="task-date">📅 {{ $task->deadline ? $task->deadline->format('d M Y') : 'بدون موعد' }}</p>
+                                        </div>
+                                    @else
+                                        <a href="{{ route('tasks.show', $task) }}" class="task-content task-link" title="عرض المهمة">
+                                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                                                <h4 class="task-name">{{ $task->title }}</h4>
+                                                <span class="priority-badge priority-{{ $task->priority ?? 'medium' }}">{{ $task->priority === 'high' ? '🔴 عالية' : ($task->priority === 'low' ? '🟢 منخفضة' : '🟡 متوسطة') }}</span>
+                                                @if($isOverdue)
+                                                    <span class="overdue-badge">⚠️ متأخرة</span>
+                                                @endif
+                                            </div>
+                                            <p class="task-date">📅 {{ $task->deadline ? $task->deadline->format('d M Y') : 'بدون موعد' }}</p>
+                                        </a>
+                                    @endif
+                                </div>
+
+                                <div class="task-actions">
+                                    <a href="{{ route('tasks.edit', $task) }}" class="task-edit" title="تعديل">✏️</a>
+                                    <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline-form" onsubmit="return confirm('هل تريد حقاً حذف هذه المهمة؟')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="task-delete">🗑️</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="empty-state glass">
+                        <div class="empty-icon">✨</div>
+                        <p class="empty-text">قائمة المهام فارغة</p>
+                        <p class="empty-subtitle">أضف مهمة جديدة من أسفل الصفحة للبدء</p>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Add Task Form (use the more detailed form fields) -->
+            <div class="add-task-card glass" style="margin-top:1rem;">
+                <h3 class="section-title">➕ إضافة مهمة جديدة</h3>
+                <form method="POST" action="{{ route('tasks.store', $goal) }}" id="add-task-form">
                     @csrf
-                    <div>
-                        <input name="title" placeholder="عنوان المهمة" required class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all" />
-                        @error('title') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror
-                    </div>
-                    <div>
-                        <textarea name="description" placeholder="الوصف (اختياري)" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all resize-none" rows="3"></textarea>
-                        @error('description') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror
-                    </div>
-                    <div>
-                        <input name="deadline" type="datetime-local" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all" />
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <input name="estimated_duration_input" type="number" min="0" placeholder="مدة" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all" />
+
+                    <div class="add-task-grid" style="display:grid; grid-template-columns: 1fr 360px; gap:1rem; align-items:start;">
+                        <div class="left-col">
+                            <label for="title">عنوان المهمة <span style="color:#ef4444">*</span></label>
+                            <input type="text" id="title" name="title" placeholder="اسم المهمة..." required class="form-input" value="{{ old('title') }}">
+                            @error('title')<div class="form-error">{{ $message }}</div>@enderror
+
+                            <label for="description" style="margin-top:0.75rem;">الوصف (اختياري)</label>
+                            <textarea id="description" name="description" rows="3" class="form-input">{{ old('description') }}</textarea>
+                            @error('description')<div class="form-error">{{ $message }}</div>@enderror
                         </div>
-                        <div>
-                            <select name="estimated_unit" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all">
-                                <option value="minutes">دقائق</option>
-                                <option value="hours">ساعات</option>
-                            </select>
+
+                        <div class="right-col" style="display:flex; flex-direction:column; gap:0.75rem;">
+                            <div>
+                                <label for="deadline">الموعد النهائي <span style="color:#ef4444">*</span></label>
+                                <input type="datetime-local" id="deadline" name="deadline" class="form-input" value="{{ old('deadline') }}" required>
+                                @error('deadline')<div class="form-error">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div style="display:flex; gap:0.5rem;">
+                                <div style="flex:1;">
+                                    <label for="estimated_duration">المدة المتوقعة <span style="color:#ef4444">*</span></label>
+                                    <input type="number" id="estimated_duration" name="estimated_duration_input" min="1" class="form-input" value="{{ old('estimated_duration_input') }}" required>
+                                    @error('estimated_duration_input')<div class="form-error">{{ $message }}</div>@enderror
+                                </div>
+                                <div style="width:110px;">
+                                    <label for="estimated_unit">الوحدة</label>
+                                    <select id="estimated_unit" name="estimated_unit" class="form-input">
+                                        <option value="minutes" @selected(old('estimated_unit') === 'minutes' || !old('estimated_unit'))>دقائق</option>
+                                        <option value="hours" @selected(old('estimated_unit') === 'hours')>ساعات</option>
+                                    </select>
+                                    @error('estimated_unit')<div class="form-error">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="priority">الأولوية</label>
+                                <select id="priority" name="priority" class="form-input">
+                                    <option value="low" @selected(old('priority') === 'low')>منخفضة</option>
+                                    <option value="medium" @selected(old('priority') === 'medium' || !old('priority'))>متوسطة</option>
+                                    <option value="high" @selected(old('priority') === 'high')>عالية</option>
+                                </select>
+                                @error('priority')<div class="form-error">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div style="margin-top:0.5rem; display:flex; gap:0.5rem;">
+                                <button type="submit" class="btn btn-primary" style="flex:1;">➕ إضافة المهمة</button>
+                                <a href="{{ route('goals.index') }}" class="btn btn-secondary" style="flex:1; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">← رجوع</a>
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-medium hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5">
-                        إضافة المهمة
-                    </button>
                 </form>
             </div>
         </div>
-    </div>
+    </section>
 @endsection
+
+@push('scripts')
+<script>
+    // Small helper: keep behavior of tasks page (set default dates)
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const dateInputs = document.querySelectorAll('input[type="date"], input[type="datetime-local"]');
+        dateInputs.forEach(input => {
+            if (!input.value) input.value = today;
+        });
+
+        // Task filtering and sorting functionality
+        const filterSelect = document.getElementById('filterTasks');
+        const sortSelect = document.getElementById('sortTasks');
+        const tasksContainer = document.getElementById('tasksContainer');
+
+        if (filterSelect && sortSelect && tasksContainer) {
+            // Store original tasks - keep them as reference
+            const allTasks = Array.from(tasksContainer.querySelectorAll('.task-item'));
+
+            function updateTasks() {
+                const filter = filterSelect.value;
+                const sort = sortSelect.value;
+
+                // Filter tasks
+                let visibleTasks = allTasks.filter(task => {
+                    const status = task.getAttribute('data-status');
+                    const isOverdue = task.classList.contains('overdue');
+
+                    if (filter === 'all') return true;
+                    if (filter === 'pending') return status !== 'completed' && !isOverdue;
+                    if (filter === 'completed') return status === 'completed';
+                    if (filter === 'overdue') return isOverdue;
+                    return true;
+                });
+
+                // Sort visible tasks
+                visibleTasks.sort((a, b) => {
+                    const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                    const aPriority = priorityOrder[a.getAttribute('data-priority')] || 2;
+                    const bPriority = priorityOrder[b.getAttribute('data-priority')] || 2;
+                    const aDeadline = parseInt(a.getAttribute('data-deadline')) || Infinity;
+                    const bDeadline = parseInt(b.getAttribute('data-deadline')) || Infinity;
+                    const aCreated = parseInt(a.getAttribute('data-created')) || 0;
+                    const bCreated = parseInt(b.getAttribute('data-created')) || 0;
+
+                    switch(sort) {
+                        case 'newest':
+                            return bCreated - aCreated;
+                        case 'oldest':
+                            return aCreated - bCreated;
+                        case 'priority':
+                            return bPriority - aPriority;
+                        case 'deadline':
+                            return aDeadline - bDeadline;
+                        default:
+                            return 0;
+                    }
+                });
+
+                // Hide all tasks
+                allTasks.forEach(task => {
+                    task.style.display = 'none';
+                    task.style.animation = 'none';
+                });
+
+                // Show and reorder visible tasks with staggered animation
+                visibleTasks.forEach((task, index) => {
+                    task.style.display = '';
+                    // Reset animation
+                    task.style.animation = 'none';
+                    // Trigger reflow to restart animation
+                    void task.offsetWidth;
+                    // Apply animation with stagger
+                    task.style.animation = `slideInTaskSmooth 0.5s ease-out ${index * 0.1}s forwards`;
+                });
+            }
+
+            filterSelect.addEventListener('change', updateTasks);
+            sortSelect.addEventListener('change', updateTasks);
+        }
+    });
+</script>
+@endpush

@@ -1,3 +1,9 @@
+{{--
+    Component: input-error
+    --------------------------------------------------------
+    Arabic: يعرض رسائل الأخطاء المتعلقة بحقل النموذج بشكل مرئي.
+    English: Shows validation error messages for form inputs.
+--}}
 @props(['messages'])
 
 @if ($messages)

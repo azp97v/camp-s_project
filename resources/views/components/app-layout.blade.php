@@ -1,3 +1,11 @@
+{{--
+    Component: app-layout
+    --------------------------------------------------------
+    Arabic: قالب مكوّن عام يحتوي شريط التنقل والمحتوى وتذييل الصفحة.
+    English: Main layout component used by Jetstream/Inertia views as the app shell.
+    No behavior changes; header comment only.
+--}}
+@props(['header' => null])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl">
     <head>
@@ -33,10 +41,9 @@
             </main>
 
             <!-- Footer -->
-            <footer class="mt-20 py-12 text-center text-sm text-slate-500 border-t border-slate-200/30 glass">
-                <div class="max-w-7xl mx-auto px-4">
-                    <p class="mb-2">© {{ date('Y') }} {{ config('app.name') }} • جميع الحقوق محفوظة</p>
-                    <p>تم التطوير بعناية فائقة • MADE BY BIN SAEED</p>
+            <footer class="footer">
+                <div class="container">
+                    <p class="footer-text">جميع الحقوق محفوظة.© 2025 MADE BY BIN SAEED.</p>
                 </div>
             </footer>
         </div>

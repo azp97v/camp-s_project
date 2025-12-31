@@ -1,3 +1,9 @@
+{{--
+    Guest Layout (Auth Pages)
+    --------------------------------------------------------
+    قالب صفحات المصادقة للزوار يعرض نموذج في مركز الشاشة.
+    English: Layout for unauthenticated users (login, register, password reset pages). No behavior changes.
+--}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl">
     <head>
@@ -13,6 +19,9 @@
 
         <!-- Vite Assets -->
         @vite(['resources/js/app.js'])
+        <!-- Theme CSS (fallback to ensure auth pages use the new design) -->
+        <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
+        @stack('styles')
     </head>
     <body class="text-gray-900 antialiased min-h-screen">
         <div class="min-h-screen flex flex-col justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
@@ -31,9 +40,13 @@
             </div>
 
             <!-- Footer -->
-            <p class="mt-8 text-center text-sm text-slate-500 animate-on-load" style="animation-delay: 0.2s">
-                © {{ date('Y') }} {{ config('app.name') }} • MADE BY BIN SAEED
-            </p>
+            <footer class="footer">
+                <div class="container">
+                    <p class="footer-text">جميع الحقوق محفوظة.© 2025 MADE BY BIN SAEED.</p>
+                </div>
+            </footer>
         </div>
+    <script src="{{ asset('assets/js/theme.js') }}"></script>
+    @stack('scripts')
     </body>
 </html>

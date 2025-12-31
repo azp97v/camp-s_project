@@ -1,3 +1,9 @@
+{{--
+    Component: nav-link
+    --------------------------------------------------------
+    Arabic: رابط شريط التنقل يعكس حالة التفعيل (active) عبر ستايلات.
+    English: Navigation link component that highlights when active.
+--}}
 @props(['active'])
 
 @php

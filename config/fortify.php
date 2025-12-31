@@ -148,7 +148,7 @@ return [
         Features::resetPasswords(),
         // Features::emailVerification(),
         Features::updateProfileInformation(),
-        Features::updatePasswords(),
+        // Features::updatePasswords(),  // DISABLED: using custom PasswordController instead
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,

@@ -1,0 +1,447 @@
+/* Login Page Specific Styles */
+
+.login-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem 2rem;
+}
+
+.login-card {
+  max-width: 450px;
+  width: 100%;
+  padding: 3rem;
+  text-align: center;
+  animation: fadeInUp 0.6s ease;
+}
+.login-card {
+    border: none;
+    padding: 3rem;
+    width: 100%;
+    gap: 18px 32px;
+    text-align: center;
+    max-width: 450px;
+    align-items: flex-start;
+    transition: 1s;
+}
+.login-card:hover{
+        backdrop-filter:none;
+
+}
+
+/* Card background to match site theme (glass) */
+/* */
+
+/* Ensure forms placed inside the login card don't inherit large global form sizing */
+/* .login-card > form,
+.login-card .w-full {
+  padding: 0;
+  margin: 0;
+  min-height: auto;
+  background: transparent;
+  border: none;
+} */
+
+.login-logo {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  animation: float 3s ease-in-out infinite;
+  overflow: hidden;
+  background: bisque;
+
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.logo-icon {
+  font-size: 2.5rem;
+}
+
+.login-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent-color);
+}
+
+.login-subtitle {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-bottom: 2rem;
+}
+
+.login-form {
+  text-align: right;
+  margin-bottom: 1.5rem;
+}
+
+.form-options {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+
+}
+
+.forgot-password {
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: var(--accent-color);
+  transition: color 0.2s ease;
+}
+
+.forgot-password:hover {
+  color: var(--accent-hover);
+}
+
+   .btn-full
+{
+    width: 100%;
+    /* height: 40px; */
+   font-style: italic ;
+    font-weight: 700;
+    outline: none;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    padding: 1rem;
+    border-radius: 8px;
+    color: #fff;
+    transition: 1s;
+    cursor: pointer;
+    -webkit-box-reflect: below 10px linear-gradient(to bottom,
+    rgba(0,0,0,0.0), rgba(0,0,0,0.4));
+      /* background-color: var(--accent-color, #b57b4a); */
+          background-color: transparent;
+}
+
+/* .btn-full:hover{ background-color: var(--accent-hover, #e9d6be); color:rgb(73, 58, 41); box-shadow: 0px 8px 40px rgba(0,0,0,0.15); width: 100%; */
+.btn-full:hover{ background-color: bisque; color:rgb(73, 58, 41);     box-shadow: 0px 0px 60px ; width: 100%;
+
+
+}
+
+.btn-full:active
+{
+font-size: 25px;
+scale: 0.92;
+background-color: transparent;
+}
+
+.footer {
+  padding: 2rem 0;
+  text-align: center;
+  /* background: var(--glass-bg); */
+  /* backdrop-filter: blur(10px); */
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--glass-border);
+  margin-top: 5rem;
+}
+
+.footer-text {
+  font-size: 0.95rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.register-link {
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--accent-color);
+  transition: color 0.2s ease;
+}
+
+.register-link:hover {
+  color: var(--accent-hover);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .login-title {
+    font-size: 1.75rem;
+  }
+
+  .login-logo {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+
+body {
+  width: 100%;
+  height: 100%;
+  background-image: url(photos/Screenshot\ 2025-12-22\ 232017.png);
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  min-height: 100vh;
+  min-width: 100vw;
+  font-family: "Josefin Slab", serif;
+  display: flex;
+  flex-direction: column;
+  transition: background-image 0.5s ease, background-color 0.5s ease;
+  backdrop-filter: blur(10px);
+}
+
+
+
+body:hover:not(:has(form:hover)){
+        box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
+    /* background: transparent; */
+
+         backdrop-filter:none;
+         transition: 1s;
+
+}
+
+
+/* Form styling inside login-card: keep compact and aligned, don't inherit large global form sizing */
+.login-card form {
+  padding: 0 !important;
+  border-radius: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: auto !important;
+  min-height: auto !important;
+  margin: 0 !important;
+  direction: rtl;
+  background: transparent !important;
+  border: none !important;
+  gap: 0 !important;
+}
+
+/* Ensure form inner classes respect alignment */
+.login-card .login-form {
+  display: block;
+  text-align: right;
+  margin: 0;
+}
+
+/* Form groups and inputs inside login-card */
+.login-card .form-group {
+  text-align: right;
+  margin-bottom: 1rem;
+}
+
+.login-card .form-input,
+.login-card input[type="email"],
+.login-card input[type="text"],
+.login-card input[type="password"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 0.9rem;
+  margin-top: 0.4rem;
+}
+
+/* Buttons inside the login card */
+.login-card .btn,
+.login-card .btn-full,
+.login-card button[type="submit"] {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* For side-by-side buttons in forgot-password */
+.login-card .form-actions,
+.login-card div[style*="display:flex"] {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.login-card .form-actions .btn,
+.login-card div[style*="display:flex"] .btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+
+/* Large form styling for login page only */
+.login-card .login-form-large {
+    padding: 2.5rem 2rem !important;
+    border-radius: 30px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    min-width: 320px !important;
+    min-height: 520px !important;
+    margin: 2rem auto !important;
+    direction: rtl !important;
+    position: relative !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    border: solid 2px burlywood !important;
+    object-fit: contain !important;
+    transition: 1s !important;
+}
+
+/* Default form styling for other pages (not login) */
+form {
+    padding: 2.5rem 2rem;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 800px;
+    min-width: 320px;
+    min-height: 520px;
+    margin: 2rem auto;
+    direction: rtl;
+    position: relative;
+    background-repeat: no-repeat;
+    background-size: cover;
+    /* border: solid 2px burlywood; */
+    object-fit: contain;
+    transition: 1s;
+}
+
+/* Error Message and Validation Styles */
+.alert {
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  transition: all var(--transition-normal);
+}
+
+.alert.glass {
+  background-color: rgba(255, 59, 48, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.alert.alert-error {
+  border-color: rgba(255, 59, 48, 0.5);
+  background-color: rgba(255, 59, 48, 0.15);
+}
+
+.alert-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  min-width: 24px;
+  color: #ff3b30;
+}
+
+.alert-content {
+  flex: 1;
+  text-align: right;
+}
+
+.alert-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ff3b30;
+  margin: 0 0 0.5rem;
+  font-family: 'Josefin Slab', serif;
+}
+
+.alert-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #cc2a1d;
+}
+
+
+
+.alert-list li {
+  padding: 0.3rem 0;
+  line-height: 1.4;
+}
+
+/* Input Error Styling */
+.form-input.input-error {
+  border-color: #ff3b30 !important;
+  background-color: rgba(255, 59, 48, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.form-input.input-error::placeholder {
+  color: rgba(255, 59, 48, 0.6);
+}
+
+.form-input.input-error:focus {
+  border-color: #ff3b30 !important;
+  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
+
+}
+
+/* Individual Field Error Messages */
+.error-text {
+  display: block;
+  color: #ff3b30;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  font-family: 'Cairo', sans-serif;
+  text-align: right;
+  direction: rtl;
+  animation: slideInDown 0.3s ease;
+}
+/* Forgot Password Link */
+.forgot-password-link {
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--accent-color);
+  transition: color 0.2s ease;
+}
+
+.forgot-password-link:hover {
+  color: var(--accent-hover);
+}

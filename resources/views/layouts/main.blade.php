@@ -1,3 +1,9 @@
+{{--
+    Main Application Layout
+    --------------------------------------------------------
+    قالب التطبيق الرئيسي يحتوي على الرأس والملاحة والتذييل والمحتوى الرئيسي.
+    English: Main app layout template with navbar, sidebar, and content area. No behavior changes.
+--}}
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
@@ -51,8 +57,10 @@
         @yield('content')
     </main>
 
-    <footer class="mt-16 py-8 text-center text-sm text-slate-500 border-t border-slate-200/30">
-        © {{ date('Y') }} {{ config('app.name') }} • MADE BY BIN SAEED
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">جميع الحقوق محفوظة.© 2025 MADE BY BIN SAEED.</p>
+        </div>
     </footer>
 
     <!-- Live Timer Script for Task Time Tracking -->

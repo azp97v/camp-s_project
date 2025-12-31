@@ -13,9 +13,10 @@ class Goal extends Model
     /**
      * Goal model aggregates Tasks and holds overall duration tracking.
      *
-     * Fields:
-     * - `total_duration_seconds`: total budget for the goal
-     * - `remaining_duration_seconds`: remaining seconds deductable when tasks finish
+     * نموذج الهدف يحتوي على المهام ويراقب مدة الهدف الإجمالية والمتبقية.
+     * Model fields (important):
+     * - `total_duration_seconds`       : total budget for the goal (seconds)
+     * - `remaining_duration_seconds`   : remaining seconds that can be deducted
      */
     protected $fillable = [
         'user_id','title','description',

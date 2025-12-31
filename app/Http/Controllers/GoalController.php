@@ -11,19 +11,24 @@ class GoalController extends Controller
 {
     use AuthorizesRequests;
 
-    // Controller responsible for CRUD operations on user goals.
-    // This app uses Blade views (not Inertia) so methods return view() responses.
+    // ---------------------------------------------------------------------------------
+    // GoalController
+    // ---------------------------------------------------------------------------------
+    // هذا الكنترولر مسؤول عن عمليات CRUD على نماذج الأهداف (Goals) للمستخدم.
+    // This controller manages CRUD operations for user `Goal` records.
+    // It returns Blade views for HTML responses and JSON for AJAX requests.
 
     public function index()
     {
         // List goals belonging to the authenticated user, newest first.
+        // سرد الأهداف المملوكة للمستخدم الحالي مرتبة حسب الأحدث
         $goals = auth()->user()->goals()->latest()->get();
         return view('goals.index', compact('goals'));
     }
 
     public function create()
     {
-        // Render a simple form to create a new goal
+        // عرض نموذج إنشاء هدف جديد
         return view('goals.create');
     }
 
@@ -38,6 +43,7 @@ class GoalController extends Controller
             'total_unit' => 'required|in:hours,days',
         ]);
 
+        // تحويل المدة إلى ثوانٍ حسب الوحدة (ساعات أو أيام)
         // Convert goal duration to seconds (hours or days)
         $seconds = match($data['total_unit']) {
             'hours' => (int)$data['total_duration_input'] * 3600,
@@ -62,9 +68,54 @@ class GoalController extends Controller
 
     public function show(Goal $goal)
     {
+        // تأكيد صلاحية العرض للمستخدم الحالي ثم جلب مهام الهدف
         $this->authorize('view', $goal);
         $tasks = $goal->tasks()->latest()->get();
         return view('goals.show', compact('goal','tasks'));
+    }
+
+    public function edit(Goal $goal)
+    {
+        // عرض صفحة التعديل مع التحقق من الصلاحيات
+        $this->authorize('update', $goal);
+        return view('goals.edit', compact('goal'));
+    }
+
+    public function update(Request $request, Goal $goal)
+    {
+        // التحقق من الصلاحية والتحقق من صحة البيانات
+        $this->authorize('update', $goal);
+
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'total_duration_input' => 'required|numeric|min:0',
+            'total_unit' => 'required|in:hours,days',
+        ]);
+
+        // تحويل المدة إلى ثوانٍ
+        // Convert goal duration to seconds (hours or days)
+        $seconds = match($data['total_unit']) {
+            'hours' => (int)$data['total_duration_input'] * 3600,
+            'days'  => (int)$data['total_duration_input'] * 86400,
+        };
+
+        // حساب الفرق في المدة وتعديل المتبقي وفقاً لذلك
+        $durationDifference = $seconds - $goal->total_duration_seconds;
+
+        // تحديث السجّل دون تغيير المنطق
+        $goal->update([
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'total_duration_seconds' => $seconds,
+            'remaining_duration_seconds' => $goal->remaining_duration_seconds + $durationDifference,
+        ]);
+
+        if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json(['message' => 'تم تحديث الهدف.', 'goal' => $goal]);
+        }
+
+        return redirect()->route('goals.show', $goal)->with('success', 'تم تحديث الهدف.');
     }
 
     public function destroy(Goal $goal)

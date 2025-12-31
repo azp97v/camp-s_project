@@ -1,3 +1,9 @@
+{{--
+    Component: auth-session-status
+    --------------------------------------------------------
+    Arabic: يعرض رسالة حالة الجلسة (نجاح العمليات) عند وجودها.
+    English: Shows a green success status message when present (used after actions).
+--}}
 @props(['status'])
 
 @if ($status)

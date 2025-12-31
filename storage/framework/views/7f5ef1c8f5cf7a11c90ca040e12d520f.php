@@ -1,49 +1,134 @@
 <?php $__env->startSection('title',$task->title); ?>
 <?php $__env->startSection('page-title',$task->title); ?>
 
+<?php $__env->startPush('styles'); ?>
+<link rel="stylesheet" href="<?php echo e(asset('assets/css/tasks-show.css')); ?>">
+<?php $__env->stopPush(); ?>
+
 <?php $__env->startSection('content'); ?>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="task-show-page">
+        <div class="site-container">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Task Details -->
         <div class="lg:col-span-2">
             <div class="glass p-8 rounded-2xl animate-on-load card-hover border border-white/20 shadow-lg">
                 <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-slate-900 mb-2">✅ <?php echo e($task->title); ?></h2>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($task->description): ?>
-                        <p class="text-slate-600 text-lg"><?php echo e($task->description); ?></p>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <h2 class="text-3xl font-bold mb-2" style="color: var(--accent-color);"><?php echo e($task->title); ?></h2>
+                    <div class="task-meta-row">
+                        <div class="meta-left">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($task->description): ?>
+                                <p class="text-lg task-desc" style="color: var(--text-color); opacity: 0.9;"><?php echo e(\Illuminate\Support\Str::limit($task->description, 120)); ?></p>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <div class="meta-tags">
+                                <a href="<?php echo e(route('goals.show', $task->goal)); ?>" class="goal-link">الهدف: <?php echo e($task->goal->title); ?></a>
+                                <span class="meta-sep">•</span>
+                                <span class="created-at"><?php echo e($task->created_at->format('d/m/Y')); ?></span>
+                            </div>
+                        </div>
+                        <div class="meta-right">
+                            <select id="priority-selector" class="priority-selector priority-<?php echo e($task->priority ?? 'medium'); ?>" data-task-id="<?php echo e($task->id); ?>" style="cursor: pointer;">
+                                <option value="low" <?php echo e(($task->priority ?? 'medium') === 'low' ? 'selected' : ''); ?>>Low</option>
+                                <option value="medium" <?php echo e(($task->priority ?? 'medium') === 'medium' ? 'selected' : ''); ?>>Medium</option>
+                                <option value="high" <?php echo e(($task->priority ?? 'medium') === 'high' ? 'selected' : ''); ?>>High</option>
+                            </select>
+                            <a href="<?php echo e(route('tasks.edit', $task)); ?>" class="edit-btn" style="margin-left:0.6rem;">✏️ تعديل</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Timer + Quick Info -->
+                <?php
+                    $displayed_total = $task->total_tracked_seconds + ($task->status === 'stopped' ? ($task->last_session_seconds ?? 0) : 0);
+                ?>
+                <div class="timer-visual-grid mb-8">
+                    <div class="timer-visual">
+                        <svg class="timer-ring" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timer ring">
+                            <defs>
+                                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <circle class="ring-bg" cx="60" cy="60" r="52" stroke="rgba(255,255,255,0.06)" stroke-width="12" fill="none" />
+                            <circle class="ring-progress" cx="60" cy="60" r="52" stroke="var(--accent-color)" stroke-width="12" stroke-linecap="round" fill="none" transform="rotate(-90 60 60)" style="filter: url(#glow)" />
+                        </svg>
+                        <div class="timer-center">
+                            <div id="tracked-time-large" data-task-id="<?php echo e($task->id); ?>" data-task-status="<?php echo e($task->status); ?>" data-timer-start="<?php echo e($task->timer_started_at?->timestamp ?? 0); ?>" data-total-tracked="<?php echo e($task->total_tracked_seconds); ?>" data-last-session="<?php echo e($task->last_session_seconds ?? 0); ?>" data-last-finished-session="<?php echo e($task->last_finished_session_seconds ?? 0); ?>" data-estimated="<?php echo e($task->estimated_duration_seconds ?? 0); ?>"><?php echo e(gmdate('H:i:s', $displayed_total)); ?></div>
+                            <div class="timer-epoch small muted" id="timer-epoch-text"><?php echo e($task->status === 'running' ? 'جاري الآن' : ucfirst($task->status)); ?></div>
+                        </div>
+                    </div>
+
+                    <div class="timer-quick-info">
+                        <div class="priority-line">
+                            <span class="priority-dot priority-<?php echo e($task->priority ?? 'medium'); ?>" aria-hidden="true"></span>
+                            <span class="priority-label">أولوية: <?php echo e(ucfirst($task->priority ?? 'medium')); ?></span>
+                        </div>
+
+                        <div class="quick-metrics">
+                            <div class="qm-item">
+                                <div class="qm-label">الإجمالي</div>
+                                <div class="qm-value" id="tracked-baseline"
+                                    data-timer-start="<?php echo e($task->timer_started_at?->timestamp ?? 0); ?>"
+                                    data-total-tracked="<?php echo e($task->total_tracked_seconds); ?>"><?php echo e(gmdate('H:i:s', $task->total_tracked_seconds ?? 0)); ?></div>
+                            </div>
+                            <?php
+                                $est = $task->estimated_duration_seconds ?? 0;
+                                $remaining_seconds = max(0, ($est - ($displayed_total ?? 0)));
+                            ?>
+                            <div class="qm-item">
+                                    <div class="qm-label">الباقي لإنجاز المهمة</div>
+                                    <div id="remaining-to-complete" class="qm-value" data-initial-remaining="<?php echo e($remaining_seconds); ?>"><?php echo e($est ? gmdate('H:i:s', $remaining_seconds) : '-'); ?></div>
+                                </div>
+                            <div class="qm-item">
+                                <div class="qm-label">تم الإنشاء</div>
+                                <div class="qm-value"><?php echo e($task->created_at->format('d/m/Y')); ?></div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons + Focus Toggle -->
+                        <div class="flex gap-3 items-center flex-nowrap">
+                            <!-- Timer Control Buttons -->
+                            <div id="task-container" data-status="<?php echo e($task->status); ?>" class="flex gap-3 action-buttons-group">
+                                
+                            </div>
+
+                            <!-- Focus Toggle Button -->
+                            <button id="focus-toggle" class="action-btn action-btn-start whitespace-nowrap" type="button">🔒 وضع التركيز</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Status and Time Tracking -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4">
-                        <div class="text-sm text-slate-600 mb-1">الحالة</div>
-                        <div class="text-2xl font-bold">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 task-metrics">
+                    <div class="metric-card" style="background: var(--glass-bg); border: 1px solid var(--glass-border);">
+                        <div class="metric-label">الحالة</div>
+                        <div class="metric-value" id="task-status-text">
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($task->status === 'running'): ?>
-                                <span class="text-green-600">🟢 جاري</span>
+                                <span style="color: #22c55e;">🟢 جاري</span>
                             <?php elseif($task->status === 'stopped'): ?>
-                                <span class="text-yellow-600">🟡 موقوف</span>
+                                <span style="color: #eab308;">🟡 موقوف</span>
                             <?php elseif($task->status === 'completed'): ?>
-                                <span class="text-blue-600">✓ منتهي</span>
+                                <span style="color: #3b82f6;">✓ منتهي</span>
                             <?php else: ?>
-                                <span class="text-slate-600">⚪ معلق</span>
+                                <span style="color: var(--text-color); opacity: 0.7;">⚪ معلق</span>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4">
-                        <div class="text-sm text-slate-600 mb-1">الوقت المتتبع</div>
-                        <?php
-                            $displayed_total = $task->total_tracked_seconds + ($task->status === 'stopped' ? ($task->last_session_seconds ?? 0) : 0);
-                        ?>
+                    <div class="metric-card" style="background: var(--glass-bg); border: 1px solid var(--glass-border);">
+                        <div class="metric-label">الإجمالي المسجل</div>
                         
-                        <div id="tracked-time" class="text-2xl font-bold text-blue-700" data-task-status="<?php echo e($task->status); ?>" data-timer-start="<?php echo e($task->timer_started_at?->timestamp ?? 0); ?>" data-total-tracked="<?php echo e($task->total_tracked_seconds); ?>">
-                            <?php echo e(gmdate('H:i:s', $displayed_total)); ?>
+                        <div id="tracked-baseline" class="metric-value" style="color: var(--highlight-color);" data-total-tracked="<?php echo e($task->total_tracked_seconds); ?>" data-timer-start="0">
+                            <?php echo e(gmdate('H:i:s', $task->total_tracked_seconds ?? 0)); ?>
 
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4">
-                        <div class="text-sm text-slate-600 mb-1">المدة المقدرة</div>
+                    <div class="metric-card" style="background: var(--glass-bg); border: 1px solid var(--glass-border);">
+                        <div class="metric-label">المدة المقدرة</div>
                         <?php
                             $est = $task->estimated_duration_seconds ?? 0;
                             if ($est >= 3600) {
@@ -57,109 +142,232 @@
                                 $estText = $est . ' ثانية';
                             }
                         ?>
-                        <div class="text-2xl font-bold text-indigo-700"><?php echo e($estText ?: '-'); ?></div>
+                        <div class="metric-value" style="color: var(--accent-color);"><?php echo e($estText ?: '-'); ?></div>
                     </div>
                 </div>
 
                 <!-- Last Session Info -->
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($task->last_session_seconds > 0): ?>
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 mb-8 border border-amber-200/50">
-                        <div class="text-sm text-slate-700 mb-1">آخر جلسة</div>
-                        <div class="text-lg font-semibold text-slate-900"><?php echo e(gmdate('H:i:s', $task->last_session_seconds)); ?></div>
+                    <div class="last-session-card" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 2rem;">
+                        <div class="metric-label">آخر جلسة</div>
+                        <div class="metric-value" style="color: var(--accent-color); font-size: 1.25rem;"><?php echo e(gmdate('H:i:s', $task->last_session_seconds)); ?></div>
                     </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <!-- Action Buttons -->
-                
-                <div id="task-container" data-status="<?php echo e($task->status); ?>" class="flex flex-wrap gap-3 mb-8">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($task->status, ['idle', 'stopped'])): ?>
-                            
-                            <form method="POST" action="<?php echo e(route('tasks.start', $task)); ?>" class="inline ajax-task-action">
-                            <?php echo csrf_field(); ?>
-                            <button type="submit" class="px-6 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium hover:shadow-lg transition-all transform hover:scale-105">
-                                <?php echo e($task->status === 'stopped' ? '▶️ استئناف' : '▶️ بدء'); ?>
+                <!-- Progress + Sections -->
+                <?php
+                    $displayed_total = $task->total_tracked_seconds + ($task->status === 'stopped' ? ($task->last_session_seconds ?? 0) : 0);
+                    $est = $task->estimated_duration_seconds ?? 0;
+                    $progressPct = 0;
+                    if ($est > 0) {
+                        $progressPct = (int) min(100, floor(($displayed_total / $est) * 100));
+                    }
+                ?>
 
-                            </button>
-                        </form>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($task->status === 'running'): ?>
-                        <form method="POST" action="<?php echo e(route('tasks.stop', $task)); ?>" class="inline ajax-task-action">
-                            <?php echo csrf_field(); ?>
-                            <button type="submit" class="px-6 py-3 rounded-lg bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-medium hover:shadow-lg transition-all transform hover:scale-105">
-                                ⏸️ إيقاف
-                            </button>
-                        </form>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($task->status === 'stopped'): ?>
-                        <form method="POST" action="<?php echo e(route('tasks.finish', $task)); ?>" class="inline ajax-task-action">
-                            <?php echo csrf_field(); ?>
-                            <button type="submit" class="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-medium hover:shadow-lg transition-all transform hover:scale-105">
-                                ✓ إنهاء
-                            </button>
-                        </form>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($task->status, ['running', 'stopped'])): ?>
-                        <form method="POST" action="<?php echo e(route('tasks.cancel', $task)); ?>" class="inline ajax-task-action">
-                            <?php echo csrf_field(); ?>
-                            <button type="submit" class="px-6 py-3 rounded-lg bg-gradient-to-r from-red-500 to-rose-600 text-white font-medium hover:shadow-lg transition-all transform hover:scale-105" onclick="return confirm('إلغاء الجلسة الحالية؟')">
-                                ✕ إلغاء
-                            </button>
-                        </form>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($est > 0): ?>
+                <div class="progress-card mb-6">
+                    <div class="progress-row">
+                        <div class="progress-label">التقدّم</div>
+                        <div class="progress-value"><?php echo e($progressPct); ?>%</div>
+                    </div>
+                    <div class="progress-bar-outer">
+                        <div class="progress-bar-inner" style="width: <?php echo e($progressPct); ?>%"></div>
+                    </div>
+                    <div class="progress-meta small muted"><?php echo e(gmdate('H:i:s', $displayed_total)); ?> من <?php echo e(gmdate('H:i:s', $est)); ?></div>
                 </div>
+                <?php else: ?>
+                <div class="progress-card mb-6" style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); padding: 1rem; border-radius: 0.85rem; text-align: center; color: rgba(255,255,255,0.5);">
+                    لم تحدد مدة مقدرة للمهمة - قم بتحديثها
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <!-- Additional Info -->
-                <div class="border-t border-slate-200/30 pt-6">
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($task->deadline): ?>
-                            <div>
-                                <div class="text-sm text-slate-600">الموعد النهائي</div>
-                                <div class="text-lg font-semibold text-slate-900"><?php echo e(\Carbon\Carbon::parse($task->deadline)->format('d/m/Y H:i')); ?></div>
-                            </div>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <div>
-                            <div class="text-sm text-slate-600">التاريخ الإنشاء</div>
-                            <div class="text-lg font-semibold text-slate-900"><?php echo e($task->created_at->format('d/m/Y')); ?></div>
+                <div class="detail-sections grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass section-card p-4">
+                        <h4 class="section-title">ملاحظات</h4>
+                        <div class="section-body">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($task->description): ?>
+                                <p class="note-text" style="color: var(--text-color);"><?php echo e($task->description); ?></p>
+                            <?php else: ?>
+                                <p class="note-text muted">لا توجد ملاحظات حالياً.</p>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
 
-                    <a href="<?php echo e(route('goals.show', $task->goal)); ?>" class="px-4 py-2 text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-2 rounded-lg hover:bg-blue-50 transition-all">
-                        ← العودة للهدف
+                    <div class="glass section-card p-4">
+                        <h4 class="section-title">سجل النشاط</h4>
+                        <div class="section-body activity-list">
+                            <div class="activity-item">
+                                <div class="act-time">آخر جلسة</div>
+                                <div class="act-desc"><?php echo e($task->last_session_seconds ? gmdate('H:i:s', $task->last_session_seconds) : '-'); ?></div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="act-time">الإجمالي</div>
+                                <div class="act-desc"><?php echo e(gmdate('H:i:s', $task->total_tracked_seconds ?? 0)); ?></div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="act-time">الحالة</div>
+                                <div class="act-desc"><?php echo e(ucfirst($task->status)); ?></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Info -->
+                <div class="additional-info" style="border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                    <div class="grid grid-cols-2 gap-4 mb-6 info-grid">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($task->deadline): ?>
+                            <div class="info-item">
+                                <div class="info-label">الموعد النهائي</div>
+                                <div class="info-value"><?php echo e(\Carbon\Carbon::parse($task->deadline)->format('d/m/Y H:i')); ?></div>
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <div class="info-item">
+                            <div class="info-label">التاريخ الإنشاء</div>
+                            <div class="info-value"><?php echo e($task->created_at->format('d/m/Y')); ?></div>
+                        </div>
+                    </div>
+
+                    <a href="<?php echo e(route('goals.show', $task->goal)); ?>" class="back-link">
+                         العودة للهدف
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Delete Form Sidebar -->
-        <div>
-            <div class="glass p-6 rounded-2xl sticky top-24 border border-white/20 shadow-lg">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">⚙️ الإجراءات</h3>
-
-                <form method="POST" action="<?php echo e(route('tasks.destroy', $task)); ?>" class="mt-6">
-                    <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
-                    <button type="submit" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-red-500 to-rose-600 text-white font-medium hover:shadow-lg transition-all transform hover:-translate-y-0.5" onclick="return confirm('حذف هذه المهمة بشكل نهائي؟')">
-                        🗑️ حذف المهمة
-                    </button>
-                </form>
-
-                <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div class="text-xs text-slate-600 mb-2">
-                        <strong>نصيحة:</strong> استخدم الأزرار أعلاه لتتبع الوقت المستغرق في هذه المهمة.
-                    </div>
-                </div>
-            </div>
         </div>
+    </div>
     </div>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('scripts'); ?>
 <script>
+// Toast Notification System
+function showToast(message, type = 'success', duration = 3000) {
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(t => t.remove());
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.textContent = message;
+
+    const styles = {
+        position: 'fixed',
+        bottom: '2rem',
+        right: '2rem',
+        padding: '1rem 1.5rem',
+        borderRadius: '0.75rem',
+        color: 'white',
+        fontWeight: '600',
+        zIndex: '9999',
+        animation: 'slideInToast 0.3s ease-out',
+        fontFamily: "'Cairo', 'Josefin Slab', serif",
+        boxShadow: 'var(--shadow-lg)',
+        maxWidth: '350px',
+        wordWrap: 'break-word'
+    };
+
+    const typeStyles = {
+        success: { background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' },
+        error: { background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' },
+        warning: { background: 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)' },
+        info: { background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' }
+    };
+
+    Object.assign(toast.style, styles);
+    Object.assign(toast.style, typeStyles[type] || typeStyles.success);
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'slideOutToast 0.3s ease-in forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// Add toast animation styles
+if (!document.querySelector('style[data-toast-styles]')) {
+    const style = document.createElement('style');
+    style.setAttribute('data-toast-styles', 'true');
+    style.textContent = `
+        @keyframes slideInToast {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideOutToast {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100%); }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const container = document.getElementById('task-container');
-    const tracked = document.getElementById('tracked-time');
+    const trackedBaseline = document.getElementById('tracked-baseline');
+    const trackedLarge = document.getElementById('tracked-time-large');
+    const ring = document.querySelector('.ring-progress');
+    const statusTextEl = document.getElementById('task-status-text');
+    const timerEpochEl = document.getElementById('timer-epoch-text');
+
+        // Helper: format seconds -> HH:MM:SS
+        function formatHMS(sec) {
+            sec = Number(sec) || 0;
+            return new Date(sec * 1000).toISOString().substr(11, 8);
+        }
+
+        // Update the activity list section with latest task data
+        function updateActivityList(taskObj) {
+            const list = document.querySelector('.activity-list');
+            if (!list) return;
+
+            const last = Number(taskObj.last_session_seconds || 0) || 0;
+            const total = Number(taskObj.total_tracked_seconds || 0) || 0;
+            const status = (taskObj.status || container?.dataset?.status || '').toString();
+
+            // If stopped, show total + last session as displayed elsewhere
+            const displayTotal = (status === 'stopped') ? (total + last) : total;
+
+            const items = [
+                { time: 'آخر جلسة', desc: last ? formatHMS(last) : '-' },
+                { time: 'الإجمالي', desc: formatHMS(displayTotal) },
+                { time: 'الحالة', desc: (status ? status.charAt(0).toUpperCase() + status.slice(1) : '-') }
+            ];
+
+            list.innerHTML = items.map(i => `
+                <div class="activity-item">
+                    <div class="act-time">${i.time}</div>
+                    <div class="act-desc">${i.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update all last-session displays on the page
+        function updateLastSessionDisplays(taskObj) {
+            const lastFinished = Number(taskObj.last_finished_session_seconds || 0) || 0;
+            const lastFinishedFormatted = lastFinished ? formatHMS(lastFinished) : '-';
+
+            // Debug info (safe)
+            try { console.log('[updateLastSessionDisplays] lastFinished:', lastFinished, 'formatted:', lastFinishedFormatted); } catch(e) {}
+
+            // Note: quick-metrics now shows remaining-to-complete; do not overwrite it here.
+
+            // Update last-session-card (الكارد تحت المؤقت)
+            const lastSessionCard = document.querySelector('.last-session-card');
+            if (lastSessionCard) {
+                if (lastFinished > 0) {
+                    lastSessionCard.style.display = 'block';
+                    const cardValue = lastSessionCard.querySelector('.metric-value');
+                    if (cardValue) cardValue.textContent = lastFinishedFormatted;
+                } else {
+                    lastSessionCard.style.display = 'none';
+                }
+            }
+
+            // Update activity list (ensure activity shows last finished where relevant)
+            // Inject last_finished into the object so updateActivityList can use it if needed
+            try { taskObj.last_finished_session_seconds = Number(taskObj.last_finished_session_seconds || lastFinished); } catch(e) {}
+            updateActivityList(taskObj);
+        }
 
     function parseTimerStart(val) {
         if (!val) return 0;
@@ -169,141 +377,450 @@ document.addEventListener('DOMContentLoaded', function () {
         return isNaN(d) ? 0 : Math.floor(d/1000);
     }
 
-    document.querySelectorAll('form.ajax-task-action').forEach(form => {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            // allow built-in confirm() on buttons with onclick to run first
-            const action = form.action;
-            const formData = new FormData(form);
-            // capture displayed seconds before starting so resume uses exactly what's shown
-            let displayedBeforeStart = null;
-            if (action && action.includes('/start') && tracked) {
-                const parts = tracked.textContent.trim().split(':').map(Number);
-                if (parts.length === 3 && parts.every(p => !isNaN(p))) {
-                    displayedBeforeStart = parts[0]*3600 + parts[1]*60 + parts[2];
+    function updateActionButtons() {
+        const formGroup = document.getElementById('task-container');
+        if (!formGroup) return;
+
+        const timerStartNow = parseInt(trackedBaseline?.dataset?.timerStart || '0', 10) || 0;
+        const serverStatus = container?.dataset?.status || 'idle';
+        const effectiveStatus = timerStartNow > 0 ? 'running' : serverStatus;
+        container.dataset.status = effectiveStatus;
+
+        // Check if duration is complete (elapsed >= estimated)
+        const est = parseInt(trackedLarge?.dataset?.estimated || 0);
+        const baseline = trackedBaseline ? parseInt(trackedBaseline.dataset.totalTracked || '0', 10) : 0;
+        const timerStart = parseTimerStart(trackedLarge?.dataset?.timerStart || 0);
+        let secondsL = baseline;
+        if (effectiveStatus === 'running' && timerStart > 0) {
+            const now = Math.floor(Date.now() / 1000);
+            secondsL = baseline + (now - timerStart);
+        }
+        const isDurationComplete = est > 0 && secondsL >= est;
+
+        formGroup.innerHTML = '';
+
+        const createButton = (actionType, label, className, confirmMsg = null) => {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.className = 'inline ajax-task-action';
+            const routes = {
+                start: '<?php echo e(route("tasks.start", $task)); ?>',
+                stop: '<?php echo e(route("tasks.stop", $task)); ?>',
+                finish: '<?php echo e(route("tasks.finish", $task)); ?>',
+                cancel: '<?php echo e(route("tasks.cancel", $task)); ?>'
+            };
+            form.action = routes[actionType] || '';
+            const csrf = document.querySelector('meta[name="csrf-token"]');
+            const svgs = {
+                start: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 3v18l15-9L5 3z" fill="currentColor"/></svg>`,
+                stop: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h4v12H6zM14 6h4v12h-4z" fill="currentColor"/></svg>`,
+                finish: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>`,
+                cancel: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.41 4.29 19.71 2.88 18.3 9.18 12 2.88 5.71 4.29 4.29 10.59 10.59 16.88 4.29z" fill="currentColor"/></svg>`
+            };
+
+            const labelText = label.replace(/[▶⏸✓✕]/g, '').trim();
+            const icon = svgs[actionType] || '';
+            form.innerHTML = `
+                ${csrf ? `<input type="hidden" name="_token" value="${csrf.content}">` : ''}
+                <button type="submit" class="action-btn ${className}">
+                    <span class="btn-icon" aria-hidden="true">${icon}</span>
+                    <span class="btn-label">${labelText}</span>
+                </button>
+            `;
+            if (confirmMsg) {
+                form.querySelector('button').onclick = () => confirm(confirmMsg);
+            }
+            form.addEventListener('submit', handleFormSubmit);
+            formGroup.appendChild(form);
+        };
+
+        // If duration is complete, show completion message instead of buttons
+        if (isDurationComplete) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'action-btn action-btn-complete'
+                + ' flex items-center gap-2'
+                + ' py-2 px-4 rounded-lg'
+                + ' bg-green-500/20 border border-green-500/50'
+                + ' text-green-500 font-medium';
+            msgDiv.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>
+                <span>اكتملت المهمة! ✓</span>
+            `;
+            formGroup.appendChild(msgDiv);
+        } else if (['idle', 'stopped'].includes(effectiveStatus)) {
+            createButton('start', 'بدء', 'action-btn-start');
+        }
+        if (effectiveStatus === 'running' && !isDurationComplete) {
+            createButton('stop', 'إيقاف', 'action-btn-stop');
+        }
+        if (effectiveStatus === 'stopped' && !isDurationComplete) {
+            createButton('finish', 'إنهاء', 'action-btn-finish');
+        }
+        if (['running', 'stopped'].includes(effectiveStatus) && !isDurationComplete) {
+            createButton('cancel', 'إلغاء', 'action-btn-cancel', 'إلغاء الجلسة الحالية؟');
+        }
+    }
+
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        const action = this.action;
+        const formData = new FormData(this);
+        let displayedBeforeStart = null;
+
+        if (action && action.includes('/start') && trackedBaseline) {
+            const parts = trackedBaseline.textContent.trim().split(':').map(Number);
+            if (parts.length === 3 && parts.every(p => !isNaN(p))) {
+                displayedBeforeStart = parts[0]*3600 + parts[1]*60 + parts[2];
+            }
+            container.dataset.sessionOriginal = String(parseInt(trackedBaseline.dataset.totalTracked || '0', 10) || 0);
+        }
+
+        try {
+            if (action && action.includes('/stop') && trackedBaseline) {
+                const timerStartNow = parseInt(trackedBaseline.dataset.timerStart) || 0;
+                const baselineNow = parseInt(trackedBaseline.dataset.totalTracked) || 0;
+                if (timerStartNow > 0) {
+                    const nowSec = Math.floor(Date.now() / 1000);
+                    const elapsed = Math.max(0, nowSec - timerStartNow);
+                    const displaySec = baselineNow + elapsed;
+                    trackedBaseline.dataset.preStopValue = String(displaySec);
+                    trackedBaseline.dataset.timerStart = 0;
+                    trackedBaseline.textContent = new Date(displaySec * 1000).toISOString().substr(11,8);
+                    container.dataset.status = 'stopped';
                 }
-                // store original baseline before session so we can revert on cancel
-                container.dataset.sessionOriginal = String(parseInt(tracked.dataset.totalTracked || '0', 10) || 0);
             }
 
-            try {
-                // If this is a stop action, compute and display the stopped time immediately
-                if (action && action.includes('/stop') && tracked) {
-                    const timerStartNow = parseInt(tracked.dataset.timerStart) || 0;
-                    const baselineNow = parseInt(tracked.dataset.totalTracked) || 0;
-                    if (timerStartNow > 0) {
-                        const nowSec = Math.floor(Date.now() / 1000);
-                        const elapsed = Math.max(0, nowSec - timerStartNow);
-                        const displaySec = baselineNow + elapsed;
-                        // mark pre-stop value so response handler can align
-                        tracked.dataset.preStopValue = String(displaySec);
-                        // stop the ticking immediately
-                        tracked.dataset.timerStart = 0;
-                        // update visible text
-                        tracked.textContent = new Date(displaySec * 1000).toISOString().substr(11,8);
-                        // optimistically set status
-                        container.dataset.status = 'stopped';
-                    }
-                }
-                const res = await fetch(action, {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: formData
-                });
-                const json = await res.json().catch(() => ({}));
-                if (!res.ok || json.success === false) {
-                    alert(json.message || 'حدث خطأ');
-                    return;
-                }
+            const res = await fetch(action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
 
-                // Update local UI state
-                if (json.task && container) {
-                    // normalize task fields
-                    const t = json.task;
-                    const status = t.status ?? container.dataset.status;
-                    container.dataset.status = status;
-                    if (tracked) {
-                        const timerStart = parseTimerStart(t.timer_started_at ?? t.timer_started_at_timestamp ?? tracked.dataset.timerStart);
-                        // use server total as baseline, but if this was a start action use the displayedBeforeStart value
-                        let total = Number(t.total_tracked_seconds ?? t.total_tracked ?? tracked.dataset.totalTracked) || 0;
-                        const last = Number(t.last_session_seconds ?? 0) || 0;
+            const json = await res.json().catch(() => ({}));
 
-                        if (json.action === 'start' && displayedBeforeStart !== null) {
-                            // prefer the exact displayed seconds the user saw as the resume baseline
-                            total = displayedBeforeStart;
-                        }
-
-                        // Handle specific actions
-                        if (json.action === 'stop') {
-                            // when stopping, prefer server values for baseline
-                            const serverTotal = Number(t.total_tracked_seconds || 0);
-                            const serverLast = Number(t.last_session_seconds || 0);
-                            const newBaseline = serverTotal + serverLast;
-                            tracked.dataset.totalTracked = String(newBaseline);
-                            tracked.dataset.timerStart = 0;
-                            const hhStopped = new Date(newBaseline * 1000).toISOString().substr(11,8);
-                            tracked.textContent = hhStopped;
-                            // clear any preStop marker
-                            delete tracked.dataset.preStopValue;
-                        } else if (json.action === 'cancel') {
-                            // revert to original baseline saved when starting
-                            const orig = Number(container.dataset.sessionOriginal || tracked.dataset.totalTracked) || 0;
-                            tracked.dataset.totalTracked = orig;
-                            tracked.dataset.timerStart = 0;
-                            tracked.textContent = new Date(orig * 1000).toISOString().substr(11,8);
-                            // clear saved original
-                            delete container.dataset.sessionOriginal;
-                        } else {
-                            // Keep baseline total in dataset (used when running to add elapsed)
-                            tracked.dataset.timerStart = timerStart || 0;
-                            tracked.dataset.totalTracked = total;
-
-                            // For stopped state, display total + last session so it doesn't revert
-                            let displayTotal = total;
-                            if (status === 'stopped') {
-                                displayTotal = total + last;
-                            }
-
-                            // display H:i:s
-                            const hh = new Date((displayTotal) * 1000).toISOString().substr(11,8);
-                            tracked.textContent = hh;
-                        }
-                    }
-                }
-
-                if (json.action === 'finish') {
-                    // user requested finish -> reload to reflect goal deduction
-                    location.reload();
-                    return;
-                }
-
-                // otherwise show simple success and let UI reflect changes
-                alert(json.message || 'تمت العملية');
-            } catch (err) {
-                console.error(err);
-                alert('خطأ في الشبكة. حاول مجدداً.');
+            if (!res.ok || json.success === false) {
+                showToast(json.message || 'حدث خطأ', 'error');
+                return;
             }
-        });
-    });
 
-    // if running, start local tick to show elapsed time
+            if (json.task && container) {
+                const t = json.task;
+                const status = t.status ?? container.dataset.status;
+                container.dataset.status = status;
+
+                if (trackedBaseline) {
+                    const timerStart = parseTimerStart(t.timer_started_at ?? t.timer_started_at_timestamp ?? trackedBaseline.dataset.timerStart);
+                    let total = Number(t.total_tracked_seconds ?? trackedBaseline.dataset.totalTracked) || 0;
+                    const last = Number(t.last_session_seconds ?? 0) || 0;
+
+                    if (json.action === 'start' && displayedBeforeStart !== null) {
+                        total = displayedBeforeStart;
+                    }
+
+                    if (json.action === 'stop') {
+                        const serverTotal = Number(t.total_tracked_seconds || 0);
+                        const serverLast = Number(t.last_session_seconds || 0);
+                        const lastFinished = Number(t.last_finished_session_seconds || 0);
+                        const newBaseline = serverTotal + serverLast;
+                        trackedBaseline.dataset.totalTracked = String(newBaseline);
+                        trackedBaseline.dataset.lastSession = String(serverLast);
+                        trackedBaseline.dataset.lastFinishedSession = String(lastFinished);
+                        trackedBaseline.dataset.timerStart = 0;
+                        trackedBaseline.textContent = new Date(newBaseline * 1000).toISOString().substr(11,8);
+                        delete trackedBaseline.dataset.preStopValue;
+                    } else if (json.action === 'cancel') {
+                        const orig = Number(container.dataset.sessionOriginal || trackedBaseline.dataset.totalTracked) || 0;
+                        const lastFinished = Number(t.last_finished_session_seconds || 0);
+                        trackedBaseline.dataset.totalTracked = orig;
+                        trackedBaseline.dataset.lastSession = '0';
+                        trackedBaseline.dataset.lastFinishedSession = String(lastFinished);
+                        trackedBaseline.dataset.timerStart = 0;
+                        trackedBaseline.textContent = new Date(orig * 1000).toISOString().substr(11,8);
+                        delete container.dataset.sessionOriginal;
+                    } else {
+                        const lastFinished = Number(t.last_finished_session_seconds || 0);
+                        trackedBaseline.dataset.timerStart = timerStart || 0;
+                        trackedBaseline.dataset.totalTracked = total;
+                        trackedBaseline.dataset.lastSession = String(last);
+                        trackedBaseline.dataset.lastFinishedSession = String(lastFinished);
+                        let displayTotal = total;
+                        if (status === 'stopped') {
+                            displayTotal = total + last;
+                        }
+                        trackedBaseline.textContent = new Date(displayTotal * 1000).toISOString().substr(11,8);
+                    }
+                }
+
+                if (trackedLarge) {
+                    const timerStartL = parseTimerStart(t.timer_started_at ?? trackedLarge.dataset.timerStart);
+                    let totalL = Number(t.total_tracked_seconds ?? trackedLarge.dataset.totalTracked) || 0;
+                    const lastL = Number(t.last_session_seconds ?? 0) || 0;
+
+                    if (json.action === 'stop') {
+                        const serverTotal = Number(t.total_tracked_seconds || 0);
+                        const serverLast = Number(t.last_session_seconds || 0);
+                        const lastFinished = Number(t.last_finished_session_seconds || 0);
+                        const newBaseline = serverTotal + serverLast;
+                        trackedLarge.dataset.totalTracked = String(newBaseline);
+                        trackedLarge.dataset.lastSession = String(serverLast);
+                        trackedLarge.dataset.lastFinishedSession = String(lastFinished);
+                        trackedLarge.dataset.timerStart = 0;
+                        trackedLarge.textContent = new Date(newBaseline * 1000).toISOString().substr(11,8);
+                    } else if (json.action === 'cancel') {
+                        const orig = Number(container.dataset.sessionOriginal || trackedLarge.dataset.totalTracked) || 0;
+                        const lastFinished = Number(t.last_finished_session_seconds || 0);
+                        trackedLarge.dataset.totalTracked = orig;
+                        trackedLarge.dataset.lastSession = '0';
+                        trackedLarge.dataset.lastFinishedSession = String(lastFinished);
+                        trackedLarge.dataset.timerStart = 0;
+                        trackedLarge.textContent = new Date(orig * 1000).toISOString().substr(11,8);
+                    } else {
+                        const lastFinished = Number(t.last_finished_session_seconds || 0);
+                        trackedLarge.dataset.timerStart = timerStartL || 0;
+                        trackedLarge.dataset.totalTracked = totalL;
+                        trackedLarge.dataset.lastSession = String(lastL);
+                        trackedLarge.dataset.lastFinishedSession = String(lastFinished);
+                        trackedLarge.dataset.taskStatus = status;
+                        let displayTotalL = totalL;
+                        if (status === 'stopped') displayTotalL = totalL + lastL;
+                        trackedLarge.textContent = new Date(displayTotalL * 1000).toISOString().substr(11,8);
+                    }
+                }
+                // Refresh all last-session displays to reflect latest values
+                try {
+                    // Prefer server-provided `last_finished_session_seconds`.
+                    // Fallback to `last_session_seconds` or any pre-stop computed value.
+                    const lastFinishedFromServer = Number(t.last_finished_session_seconds ?? 0) || 0;
+                    const lastSessionFromServer = Number(t.last_session_seconds ?? 0) || 0;
+                    const preStop = Number(trackedBaseline?.dataset?.preStopValue ?? trackedBaseline?.dataset?.lastSession ?? trackedLarge?.dataset?.lastSession ?? 0) || 0;
+
+                    // If server gave a last finished value, use it. Otherwise on finish use last_session or preStop.
+                    const lastFinished = lastFinishedFromServer || (json.action === 'finish' ? (lastSessionFromServer || preStop) : lastFinishedFromServer);
+
+                    if (trackedBaseline) trackedBaseline.dataset.lastFinishedSession = String(lastFinished);
+                    if (trackedLarge) trackedLarge.dataset.lastFinishedSession = String(lastFinished);
+
+                    // Ensure the task object we pass to the UI updater contains the resolved value
+                    t.last_finished_session_seconds = lastFinished;
+                    updateLastSessionDisplays(t);
+                    // also update remaining field after server response
+                    try { const remEl = document.getElementById('remaining-to-complete'); if (remEl) { const est = parseInt(trackedLarge?.dataset?.estimated || remEl.dataset?.initialRemaining || '0', 10) || 0; const total = Number(trackedLarge?.dataset?.totalTracked || trackedBaseline?.dataset?.totalTracked || 0); const lastFromServer = Number(t.total_tracked_seconds || total); const remaining = Math.max(0, est - lastFromServer); remEl.textContent = est ? new Date(remaining * 1000).toISOString().substr(11,8) : '-'; } } catch(e) {}
+                } catch(e) { /* ignore */ }
+            }
+
+            const toastMessages = {
+                start: 'تم بدء المهمة',
+                stop: 'تم إيقاف المهمة',
+                finish: 'تم إنهاء المهمة',
+                cancel: 'تم إلغاء الجلسة'
+            };
+
+            showToast(toastMessages[json.action] || json.message || 'تمت العملية', 'success');
+            updateActionButtons();
+
+            if (json.action === 'finish') {
+                setTimeout(() => location.reload(), 1500);
+                return;
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('خطأ في الشبكة. حاول مجدداً.', 'error');
+        }
+    }
+
+    // Start local tick for elapsed time and status updates
     (function startTick() {
-        if (!tracked) return;
         const tick = () => {
-            const status = container?.dataset.status;
-            const timerStart = parseInt(tracked.dataset.timerStart) || 0;
-            const total = parseInt(tracked.dataset.totalTracked) || 0;
+            const status = container?.dataset?.status || trackedLarge?.dataset?.taskStatus || 'idle';
+            const timerStart = parseTimerStart(trackedLarge?.dataset?.timerStart || 0);
+            const baseline = trackedBaseline ? parseInt(trackedBaseline.dataset.totalTracked || '0', 10) : 0;
+            const est = parseInt(trackedLarge?.dataset?.estimated || 0);
+            let secondsL = baseline;
+
             if (status === 'running' && timerStart > 0) {
                 const now = Math.floor(Date.now() / 1000);
-                const seconds = total + (now - timerStart);
-                tracked.textContent = new Date(seconds * 1000).toISOString().substr(11,8);
+                secondsL = baseline + (now - timerStart);
+            }
+
+            // Auto-stop timer if duration is complete (when elapsed >= estimated)
+            if (status === 'running' && est > 0 && secondsL >= est) {
+                console.log('[Auto-Stop] Duration complete. Stopping timer.');
+                // Call the stop endpoint to stop the timer on the server
+                fetch(window.location.pathname + '/stop', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }
+                }).then(r => r.json()).then(json => {
+                    if (json.task) {
+                        container.dataset.status = 'stopped';
+                        trackedLarge.dataset.taskStatus = 'stopped';
+                        showToast('اكتملت المهمة! العداد توقف تلقائياً.', 'success');
+                    }
+                }).catch(e => console.error('Auto-stop failed:', e));
+                return;
+            }
+
+            if (trackedLarge) {
+                trackedLarge.textContent = new Date(secondsL * 1000).toISOString().substr(11, 8);
+            }
+
+            // Update remaining-to-complete display (live)
+            try {
+                const remEl = document.getElementById('remaining-to-complete');
+                if (remEl) {
+                    const remaining = Math.max(0, est - secondsL);
+                    remEl.textContent = est ? new Date(remaining * 1000).toISOString().substr(11,8) : '-';
+                }
+            } catch(e) { /* ignore */ }
+
+            if (statusTextEl) {
+                let html = '';
+                const dot = (c) => `<svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-inline-end:6px"><circle cx="6" cy="6" r="6" fill="${c}"/></svg>`;
+
+                if (status === 'running') {
+                    html = `${dot('#22c55e')}<span style="color: #22c55e; font-weight:700">جاري</span>`;
+                } else if (status === 'stopped') {
+                    html = `${dot('#eab308')}<span style="color: #eab308; font-weight:700">موقوف</span>`;
+                } else if (status === 'completed') {
+                    html = `${dot('#3b82f6')}<span style="color: #3b82f6; font-weight:700">منتهي</span>`;
+                } else {
+                    html = `${dot('rgba(255,255,255,0.7)')}<span style="color: var(--text-color); opacity:0.8">معلق</span>`;
+                }
+                statusTextEl.innerHTML = html;
+            }
+
+            if (timerEpochEl) {
+                if (status === 'running') {
+                    timerEpochEl.textContent = 'جاري الآن';
+                } else if (status === 'stopped') {
+                    timerEpochEl.textContent = 'موقوف';
+                } else if (status === 'completed') {
+                    timerEpochEl.textContent = 'منتهي';
+                } else {
+                    timerEpochEl.textContent = 'معلق';
+                }
+            }
+
+            if (ring) {
+                const totalLen = 326.7256;
+                if (est > 0) {
+                    const pct = Math.min(1, secondsL / est);
+                    const offset = Math.max(0, totalLen * (1 - pct));
+                    ring.style.strokeDashoffset = String(offset);
+                    ring.classList.remove('indeterminate');
+                } else {
+                    ring.style.strokeDashoffset = String(totalLen * 0.65);
+                    ring.classList.add('indeterminate');
+                }
             }
         };
+
         tick();
         setInterval(tick, 1000);
     })();
+
+    // Focus toggle with persistence per task
+    const focusBtn = document.getElementById('focus-toggle');
+    const pageRoot = document.querySelector('.task-show-page');
+    const taskId = trackedLarge?.dataset?.taskId || trackedLarge?.getAttribute('data-task-id') || null;
+    const focusKey = taskId ? `task_focus_${taskId}` : 'task_focus_global';
+    if (focusBtn && pageRoot) {
+        // apply saved state if any
+        try {
+            const saved = localStorage.getItem(focusKey);
+            if (saved === '1') {
+                pageRoot.classList.add('focus-mode');
+                document.body.classList.add('focus-mode');
+                focusBtn.textContent = '🔓 خروج من التركيز';
+            } else {
+                pageRoot.classList.remove('focus-mode');
+                document.body.classList.remove('focus-mode');
+                focusBtn.textContent = '🔒 وضع التركيز';
+            }
+        } catch (e) {
+            // ignore storage errors
+        }
+
+        focusBtn.addEventListener('click', () => {
+            const isNow = pageRoot.classList.toggle('focus-mode');
+            // also mark on body so global elements (navbar/footer) can be hidden by CSS
+            if (isNow) document.body.classList.add('focus-mode'); else document.body.classList.remove('focus-mode');
+            focusBtn.textContent = isNow ? '🔓 خروج من التركيز' : '🔒 وضع التركيز';
+            try { localStorage.setItem(focusKey, isNow ? '1' : '0'); } catch (e) {}
+        });
+    }
+
+    // Initialize buttons on load
+    updateActionButtons();
+
+    // Initialize activity list on load
+    if (trackedLarge) {
+        const initialTaskData = {
+            last_finished_session_seconds: Number(trackedLarge.dataset.lastFinishedSession) || 0,
+            last_session_seconds: Number(trackedLarge.dataset.lastSession) || 0,
+            total_tracked_seconds: Number(trackedLarge.dataset.totalTracked) || 0,
+            status: trackedLarge.dataset.taskStatus || 'idle'
+        };
+        updateLastSessionDisplays(initialTaskData);
+    }
+
+    // Handle priority change via select dropdown
+    const prioritySelector = document.getElementById('priority-selector');
+    if (prioritySelector) {
+        prioritySelector.addEventListener('change', async (e) => {
+            const newPriority = e.target.value;
+            const taskId = prioritySelector.dataset.taskId;
+
+            try {
+                const csrf = document.querySelector('meta[name="csrf-token"]');
+                const response = await fetch(`/tasks/${taskId}/update-priority`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _token: csrf.content,
+                        priority: newPriority
+                    })
+                });
+
+                const json = await response.json();
+
+                if (response.ok && json.success) {
+                    // Update priority selector styling
+                    prioritySelector.className = `priority-selector priority-${newPriority}`;
+
+                    // Update other priority displays on the page
+                    const priorityPills = document.querySelectorAll('.priority-pill');
+                    priorityPills.forEach(pill => {
+                        pill.className = `priority-pill priority-${newPriority}`;
+                        pill.textContent = newPriority.charAt(0).toUpperCase() + newPriority.slice(1);
+                    });
+
+                    const priorityDots = document.querySelectorAll('.priority-dot');
+                    priorityDots.forEach(dot => {
+                        dot.className = `priority-dot priority-${newPriority}`;
+                    });
+
+                    const priorityLabels = document.querySelectorAll('.priority-label');
+                    priorityLabels.forEach(label => {
+                        label.textContent = `أولوية: ${newPriority.charAt(0).toUpperCase() + newPriority.slice(1)}`;
+                    });
+
+                    showToast('تم تحديث الأولوية بنجاح', 'success');
+                } else {
+                    showToast(json.message || 'فشل تحديث الأولوية', 'error');
+                    // Reset selector
+                    prioritySelector.value = e.target.dataset.oldValue;
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('خطأ في تحديث الأولوية', 'error');
+            }
+        });
+    }
 });
 </script>
 <?php $__env->stopPush(); ?>
 
-<?php echo $__env->make('layouts.main', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\camp's_project\resources\views/tasks/show.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\camp's_project\resources\views/tasks/show.blade.php ENDPATH**/ ?>

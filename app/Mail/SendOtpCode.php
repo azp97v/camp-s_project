@@ -29,8 +29,8 @@ class SendOtpCode extends Mailable
             view: 'emails.otp',
             with: [
                 'name' => $this->name,
-                'otpCode' => $this->otpCode,
-                'expiresInMinutes' => 10,
+                'code' => $this->otpCode,
+                'expiresInMinutes' => 3,
             ],
         );
     }

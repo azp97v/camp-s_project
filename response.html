@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="9Jc7q5kZz8RhG51dKodSjWvmpFaoFke16jGrBNNd">
+    <title>Step by Step</title>
+    <link rel="stylesheet" href="http://127.0.0.1:8000/assets/css/theme.css">
+                <link rel="stylesheet" href="http://127.0.0.1:8000/assets/css/login.css">
+<script id="browser-logger-active">
+(function() {
+    const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+    const logQueue = [];
+    let flushTimeout = null;
+
+    console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+
+    // Store original console methods
+    const originalConsole = {
+        log: console.log,
+        info: console.info,
+        error: console.error,
+        warn: console.warn,
+        table: console.table
+    };
+
+    // Helper to safely stringify values
+    function safeStringify(obj) {
+        const seen = new WeakSet();
+        return JSON.stringify(obj, (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (seen.has(value)) return '[Circular]';
+                seen.add(value);
+            }
+            if (value instanceof Error) {
+                return {
+                    name: value.name,
+                    message: value.message,
+                    stack: value.stack
+                };
+            }
+            return value;
+        });
+    }
+
+    // Batch and send logs
+    function flushLogs() {
+        if (logQueue.length === 0) return;
+
+        const batch = logQueue.splice(0, logQueue.length);
+
+        fetch(ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ logs: batch })
+        }).catch(err => {
+            // Silently fail to avoid infinite loops
+            originalConsole.error('Failed to send logs:', err);
+        });
+    }
+
+    // Debounced flush (100ms)
+    function scheduleFlush() {
+        if (flushTimeout) clearTimeout(flushTimeout);
+        flushTimeout = setTimeout(flushLogs, 100);
+    }
+
+    // Intercept console methods
+    ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+        console[method] = function(...args) {
+            // Call original method
+            originalConsole[method].apply(console, args);
+
+            // Capture log data
+            try {
+                logQueue.push({
+                    type: method,
+                    timestamp: new Date().toISOString(),
+                    data: args.map(arg => {
+                        try {
+                            return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                        } catch (e) {
+                            return String(arg);
+                        }
+                    }),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent
+                });
+
+                scheduleFlush();
+            } catch (e) {
+                // Fail silently
+            }
+        };
+    });
+
+    // Global error handlers for uncaught errors
+    const originalOnError = window.onerror;
+    window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
+        try {
+            logQueue.push({
+                type: 'uncaught_error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: errorMsg,
+                    filename: url,
+                    lineno: lineNumber,
+                    colno: colNumber,
+                    error: error ? {
+                        name: error.name,
+                        message: error.message,
+                        stack: error.stack
+                    } : null
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Call original handler if it exists
+        if (originalOnError && typeof originalOnError === 'function') {
+            return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+        }
+
+        // Let the error continue to propagate
+        return false;
+    }
+    window.addEventListener('error', (event) => {
+        try {
+            logQueue.push({
+                type: 'window_error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    error: event.error ? {
+                        name: event.error.name,
+                        message: event.error.message,
+                        stack: event.error.stack
+                    } : null
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Let the error continue to propagate
+        return false;
+    });
+    window.addEventListener('unhandledrejection', (event) => {
+        try {
+            logQueue.push({
+                type: 'error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: 'Unhandled Promise Rejection',
+                    reason: event.reason instanceof Error ? {
+                        name: event.reason.name,
+                        message: event.reason.message,
+                        stack: event.reason.stack
+                    } : event.reason
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Let the rejection continue to propagate
+        return false;
+    });
+
+    // Flush on page unload
+    window.addEventListener('beforeunload', () => {
+        if (logQueue.length > 0) {
+            navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+        }
+    });
+})();
+</script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="http://127.0.0.1:8000" class="navbar-logo">Step by Step</a>
+            <ul class="navbar-links">
+                <li><a href="#features">المميزات</a></li>
+
+                                    <li><a href="http://127.0.0.1:8000/login">تسجيل الدخول</a></li>
+                    <li><a href="http://127.0.0.1:8000/register">إنشاء حساب</a></li>
+                
+                            </ul>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
+        </div>
+    </nav>
+
+    <!-- محتوى الصفحة -->
+    <main>
+        
+    <!-- Login Section -->
+    <section class="login-section">
+        <div class="container">
+            <div class="login-card glass">
+                <!-- Logo -->
+                <div class="login-logo glass">
+                    <img src="http://127.0.0.1:8000/assets/img/Screenshot 2025-12-22 232017.png" alt="Step by Step Logo" class="logo-image">
+                </div>
+
+                <h2 class="login-title">مرحباً بعودتك</h2>
+                <p class="login-subtitle">سجل دخولك لمتابعة أهدافك</p>
+
+                <!-- Error Alert -->
+                
+                <!-- Login Form -->
+                <form class="login-form" method="POST" action="http://127.0.0.1:8000/login">
+    <input type="hidden" name="_token" value="9Jc7q5kZz8RhG51dKodSjWvmpFaoFke16jGrBNNd" autocomplete="off">
+    <div class="form-group">
+        <label for="email" class="form-label">البريد الإلكتروني</label>
+        <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-input "
+            placeholder="example@email.com"
+            value=""
+            required
+        >
+            </div>
+
+    <div class="form-group">
+        <label for="password" class="form-label">كلمة المرور</label>
+        <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input "
+            placeholder="••••••••"
+            required
+        >
+            </div>
+
+    <button type="submit" class="btn btn-primary btn-full">تسجيل الدخول</button>
+</form>
+
+                <!-- Register Link -->
+                <div class="login-footer">
+                    <p>ليس لديك حساب؟ <a href="http://127.0.0.1:8000/register" class="register-link">إنشاء حساب جديد</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">جميع الحقوق محفوظة.© 2025 MADE BY BIN SAEED.</p>
+        </div>
+    </footer>
+
+    <script src="http://127.0.0.1:8000/assets/js/theme.js"></script>
+    </body>
+</html>
+

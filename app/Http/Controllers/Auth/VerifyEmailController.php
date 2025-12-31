@@ -10,6 +10,13 @@ use Illuminate\Http\RedirectResponse;
 class VerifyEmailController extends Controller
 {
     /**
+     * VerifyEmailController
+     * --------------------------------------------------------
+     * Arabic: يعلّم أن البريد قد تحقّق منه للمستخدم الموثق ويطلق حدث التحقق.
+     * English: Confirms a user's email verification and fires the Verified event.
+     * Implementation unchanged; comments only.
+     */
+    /**
      * Mark the authenticated user's email address as verified.
      */
     public function __invoke(EmailVerificationRequest $request): RedirectResponse

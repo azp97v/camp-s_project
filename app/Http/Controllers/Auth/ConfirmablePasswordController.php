@@ -13,6 +13,13 @@ use Inertia\Response;
 class ConfirmablePasswordController extends Controller
 {
     /**
+     * ConfirmablePasswordController
+     * --------------------------------------------------------
+     * Arabic: يعرض واجهة تأكيد كلمة المرور ويعالج التحقق منها قبل الوصول لحساسية.
+     * English: Handles password confirmation flow used for sensitive actions.
+     * No logic changes; comments only.
+     */
+    /**
      * Show the confirm password view.
      */
     public function show(): Response

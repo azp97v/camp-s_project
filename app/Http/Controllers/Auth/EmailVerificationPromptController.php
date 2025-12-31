@@ -11,6 +11,13 @@ use Inertia\Response;
 class EmailVerificationPromptController extends Controller
 {
     /**
+     * EmailVerificationPromptController
+     * --------------------------------------------------------
+     * Arabic: يعرض مطالبة التحقق من البريد الإلكتروني إذا لم يكن مفعلًا.
+     * English: Shows the email verification prompt (or redirects if already verified).
+     * Implementation unchanged; only descriptive comments added.
+     */
+    /**
      * Display the email verification prompt.
      */
     public function __invoke(Request $request): RedirectResponse|Response

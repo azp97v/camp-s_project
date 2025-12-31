@@ -1,0 +1,304 @@
+/* ========================================
+   Profile Page Styles
+   Scoped to `.profile-section`
+   Matches dashboard and settings visual identity
+   ======================================== */
+
+.profile-section {
+  min-height: 100vh;
+  padding: 6rem 2rem 2rem;
+  background: transparent;
+}
+
+.profile-section .container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Header */
+.profile-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.profile-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 0.5rem;
+}
+
+.profile-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  opacity: 0.8;
+}
+
+/* Profile Card */
+.profile-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.profile-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.profile-card-header {
+  padding: 2rem;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.profile-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.profile-card-content {
+  padding: 2rem;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.9;
+  margin-bottom: 0.75rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-color);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all var(--transition-normal);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+}
+
+.form-error {
+  display: block;
+  font-size: 0.875rem;
+  color: #ef4444;
+  margin-top: 0.5rem;
+}
+
+/* Verification Notice */
+.verification-notice {
+  padding: 1rem;
+  background: rgba(217, 119, 6, 0.05);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  border-radius: 0.5rem;
+  color: #d97706;
+}
+
+.text-warning {
+  color: #d97706;
+  font-weight: 600;
+}
+
+.text-success {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.text-link {
+  color: var(--accent-color);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.text-link:hover {
+  opacity: 0.8;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding-top: 1rem;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-color), var(--highlight-color));
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--accent-hover), var(--highlight-hover));
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-color);
+}
+
+.btn-ghost:hover {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, #e5252b, #c72c1a);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Danger Zone */
+.danger-zone {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.danger-zone .profile-card-header {
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.danger-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+  gap: 2rem;
+}
+
+.danger-title {
+  font-weight: 600;
+  color: #ef4444;
+  margin: 0 0 0.5rem 0;
+}
+
+.danger-description {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  opacity: 0.7;
+  margin: 0;
+}
+
+/* Text Center Utility */
+.text-center {
+  text-align: center;
+}
+
+.mt-8 {
+  margin-top: 2rem;
+}
+
+.mt-3 {
+  margin-top: 0.75rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.inline {
+  display: inline;
+}
+
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-section {
+    padding: 5rem 1.5rem 2rem;
+  }
+
+  .profile-title {
+    font-size: 2rem;
+  }
+
+  .profile-card-header {
+    padding: 1.5rem;
+  }
+
+  .profile-card-content {
+    padding: 1.5rem;
+  }
+
+  .danger-action {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .profile-section {
+  direction: rtl;
+}
+
+[dir="rtl"] .danger-action {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .form-label {
+  text-align: right;
+}
+
+*{
+      font-family: "Josefin Slab", serif;
+
+}

@@ -17,11 +17,18 @@ use Laravel\Fortify\Fortify;
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
+     * FortifyServiceProvider
+     * --------------------------------------------------------
+     * Arabic: يربط إجراءات Fortify (إنشاء المستخدم، تحديث البروفايل، إعادة كلمة المرور)
+     * English: Configures Laravel Fortify actions and rate limiting for authentication.
+     * No behavioral changes — comments added for clarity.
+     */
+    /**
      * Register any application services.
      */
     public function register(): void
     {
-        //
+        // Register any Fortify-specific bindings here if needed.
     }
 
     /**
@@ -29,12 +36,14 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Wire up Fortify actions used across authentication flows.
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
+        // Rate limiting for login attempts and two-factor actions.
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 

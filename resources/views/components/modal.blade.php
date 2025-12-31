@@ -1,3 +1,9 @@
+{{--
+    Component: modal
+    --------------------------------------------------------
+    Arabic: مكوّن نافذة منبثقة (Modal) مع تحكم بالتركيز ودعم الوصول.
+    English: Accessible modal component with focus trapping and Alpine transitions.
+--}}
 @props([
     'name',
     'show' => false,

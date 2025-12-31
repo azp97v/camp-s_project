@@ -1,3 +1,9 @@
+{{--
+    Component: dropdown
+    --------------------------------------------------------
+    Arabic: مكوّن قائمة منسدلة قابل لإعادة الاستخدام يستخدم Alpine.js لفتح/إغلاق.
+    English: Reusable dropdown component with Alpine-powered open/close and transitions.
+--}}
 @props(['align' => 'right', 'width' => '48', 'contentClasses' => 'py-1 bg-white/90 backdrop-blur-md border border-white/20 shadow-xl'])
 
 @php

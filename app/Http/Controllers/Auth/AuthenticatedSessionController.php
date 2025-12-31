@@ -13,6 +13,13 @@ use Illuminate\View\View;
 class AuthenticatedSessionController extends Controller
 {
     /**
+     * AuthenticatedSessionController
+     * --------------------------------------------------------
+     * Arabic: يعرض نموذج تسجيل الدخول ويتحكم بجلسة المستخدم.
+     * English: Handles login form display, authentication and logout.
+     * No behavior changes — only added descriptive comments.
+     */
+    /**
      * Display the login view.
      */
     public function create(): View

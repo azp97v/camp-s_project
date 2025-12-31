@@ -1,0 +1,310 @@
+/* Tasks Edit Page CSS (moved from inline in tasks/edit.blade.php) */
+
+/* Task Edit Form Styling */
+.task-edit-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.task-edit-form {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.form-group-edit {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-group-edit label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group-edit label .required {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.form-input-edit,
+.form-textarea-edit,
+.form-select-edit,
+.form-datetime-edit {
+    padding: 1rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 0.875rem;
+    background: var(--input-bg, rgba(255, 255, 255, 0.03));
+    color: var(--text-color);
+    font-family: 'Cairo', 'Josefin Slab', serif;
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+    -webkit-text-fill-color: var(--text-color);
+    accent-color: var(--accent-color);
+}
+
+.form-input-edit:focus,
+.form-textarea-edit:focus,
+.form-select-edit:focus,
+.form-datetime-edit:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    background: var(--input-bg-focus, rgba(255, 255, 255, 0.06));
+    box-shadow: 0 0 0 3px rgba(246, 218, 9, 0.08);
+}
+
+/* Make select/option colors follow theme variables (prevents white dropdowns)
+   and improve contrast for both light and dark modes */
+.form-select-edit option,
+.form-datetime-edit option,
+.form-select-edit optgroup {
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Ensure selects don't show a white default background in some browsers */
+.form-select-edit {
+    background-image: none;
+}
+
+.form-textarea-edit {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.form-group-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group-inline {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.form-group-inline .form-input-edit {
+    flex: 1;
+}
+
+.form-group-inline .form-select-edit {
+    flex: 0.8;
+}
+
+/* Error Messages */
+.error-message {
+    color: #ef4444;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid #ef4444;
+    border-radius: 0.25rem;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--glass-border);
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.btn-action {
+    padding: 0.875rem 1.75rem;
+    border: none;
+    border-radius: 0.875rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: 'Cairo', 'Josefin Slab', serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 140px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.btn-action:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-action:active {
+    transform: translateY(-1px);
+}
+
+.btn-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-action:focus {
+    outline: none;
+    box-shadow: var(--shadow-lg), 0 0 0 4px rgba(246, 218, 9, 0.2);
+}
+
+/* Finish/Save button - Blue gradient */
+.btn-save {
+    background: linear-gradient(135deg, #eeb646 0%, #3d3e42 100%);
+    color: white;
+}
+
+.btn-save:hover {
+    background: linear-gradient(135deg, #af8a53 0%, #7b5600 100%);
+}
+
+/* Cancel button - Red gradient */
+.btn-cancel {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* Form Header Card */
+.form-header-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.form-header-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+}
+
+.form-header-card p {
+    font-size: 0.95rem;
+    opacity: 0.8;
+}
+
+/* Form Main Card */
+.form-main-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    animation: fadeInUp 0.6s ease-out 0.1s backwards;
+}
+
+@media (max-width: 768px) {
+    .form-group-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-group-inline .form-input-edit,
+    .form-group-inline .form-select-edit {
+        width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-action {
+        width: 100%;
+    }
+}
+
+/* Light / Dark mode fixes: ensure inputs and select options have proper
+   contrast in both themes. Some browsers render select dropdowns with
+   white backgrounds — override for light theme and common .light/.dark
+   classes. */
+
+@media (prefers-color-scheme: light) {
+    .form-input-edit,
+    .form-textarea-edit,
+    .form-select-edit,
+    .form-datetime-edit {
+        /* Use the same glassy background as dark mode so inputs match visually */
+        --input-bg: var(--glass-bg);
+        --input-bg-focus: var(--glass-bg);
+        background: var(--input-bg);
+        color: var(--text-color);
+        border-color: var(--glass-border);
+        box-shadow: none;
+    }
+
+    .form-select-edit option,
+    .form-datetime-edit option,
+    .form-select-edit optgroup {
+        background: var(--glass-bg);
+        color: var(--text-color);
+    }
+}
+
+/* If your app toggles theme via body class */
+body.light .form-input-edit,
+body.light .form-textarea-edit,
+body.light .form-select-edit,
+body.light .form-datetime-edit {
+    --input-bg: var(--glass-bg);
+    --input-bg-focus: var(--glass-bg);
+    background: var(--input-bg);
+    color: var(--text-color);
+    border-color: var(--glass-border);
+}
+
+body.dark .form-input-edit,
+body.dark .form-textarea-edit,
+body.dark .form-select-edit,
+body.dark .form-datetime-edit {
+    --input-bg: rgba(0, 0, 0, 0.03);
+    --input-bg-focus: rgba(0, 0, 0, 0.06);
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Ensure select dropdown arrow/background doesn't force white on some UAs */
+.form-select-edit {
+    background-image: none;
+}
+
+/* Force the native dropdown to render in dark scheme so options match
+   the page glass background even in light mode. This helps browsers that
+   use OS-native white dropdowns which can't be fully styled. */
+.form-select-edit,
+.form-datetime-edit {
+    color-scheme: dark;
+}
+
+/* Strongly prefer the glass-bg for option backgrounds; some UAs ignore
+   option styling, but many will respect this. Use !important as a fallback. */
+.form-select-edit option,
+.form-datetime-edit option,
+.form-select-edit optgroup {
+    background: rgb(84, 84, 84) !important;
+    color: var(--text-color) !important;
+}

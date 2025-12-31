@@ -1,0 +1,1142 @@
+/* ========================================
+   Tasks Page Specific Styles
+   Scoped to `.tasks-section`
+   Matches dashboard and overall visual identity
+   ======================================== */
+*{
+      font-family: "Josefin Slab", serif;
+
+}
+.tasks-section {
+  min-height: 100vh;
+  /* align spacing with other section pages (e.g. goals.show) */
+  padding: 3rem 1rem;
+  margin-bottom: 3rem;
+  background: transparent; /* let `body` background from theme.css show through */
+}
+
+.tasks-section .container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Filter and Sort Selects Styling */
+.tasks-section select.form-input {
+  background: rgba(6, 51, 18, 0.25);
+  color: #ffffff;
+  border: 1px solid rgba(20, 20, 20, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-family: "Josefin Slab", serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.tasks-section select.form-input:hover {
+  border-color: #f6da09;
+  box-shadow: 0 0 10px rgba(246, 218, 9, 0.3);
+  background: rgba(6, 51, 18, 0.35);
+}
+
+.tasks-section select.form-input:focus {
+  outline: none;
+  border-color: #f6da09;
+  box-shadow: 0 0 15px rgba(246, 218, 9, 0.4);
+  background: rgba(6, 51, 18, 0.35);
+}
+
+/* Light Mode - Option styling */
+.tasks-section select.form-input option {
+  background: #f6f3ee;
+  color: #2d2d2d;
+  padding: 0.6rem;
+  border: none;
+}
+
+.tasks-section select.form-input option:hover {
+  background: #e5caa0;
+  color: #1a1a1a;
+}
+
+.tasks-section select.form-input option:checked {
+  background: linear-gradient(#f6da09, #f6da09);
+  color: #1a1a1a;
+}
+
+/* Dark Mode - Select styling */
+[data-theme="dark"] .tasks-section select.form-input {
+  background: rgba(20, 20, 20, 0.7);
+  color: #f1f1f1;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .tasks-section select.form-input:hover {
+  border-color: #d4b98a;
+  box-shadow: 0 0 10px rgba(212, 185, 138, 0.3);
+  background: rgba(20, 20, 20, 0.8);
+}
+
+[data-theme="dark"] .tasks-section select.form-input:focus {
+  border-color: #d4b98a;
+  box-shadow: 0 0 15px rgba(212, 185, 138, 0.4);
+  background: rgba(20, 20, 20, 0.8);
+}
+
+/* Dark Mode - Option styling */
+[data-theme="dark"] .tasks-section select.form-input option {
+  background: #1a1a1a;
+  color: #9b9999;
+  padding: 0.6rem;
+  border: none;
+}
+
+[data-theme="dark"] .tasks-section select.form-input option:hover {
+  background: #2d2d2d;
+  color: #f1f1f1;
+}
+
+[data-theme="dark"] .tasks-section select.form-input option:checked {
+  background: #d4b98a;
+  color: #0f0f0f;
+}
+
+/* Goal Header */
+.goal-header {
+  padding: 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  animation: fadeInUp 0.6s ease;
+  gap: 2rem;
+}
+
+.goal-info {
+  flex: 1;
+}
+
+.goal-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent-color);
+  font-weight: 700;
+}
+
+/* Completed count badge under goal description */
+.completed-count {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* Logout button radius specifically on tasks/goal pages */
+.tasks-section form[action*="logout"] .btn,
+.tasks-section form[action*="logout"] button,
+.tasks-section .btn-logout {
+  border-radius: 30px !important;
+}
+
+.goal-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.goal-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.goal-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.priority-high {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.priority-medium {
+  background: rgba(217, 119, 6, 0.1);
+  color: #d97706;
+}
+
+.priority-low {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+/* Progress Circle */
+.goal-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.progress-circle {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+/* Progress card tweaks for merged view */
+.tasks-section .progress-card {
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+}
+
+.tasks-section .progress-card .progress-header {
+  margin-bottom: 1rem;
+}
+
+.tasks-section .progress-card .progress-percent {
+  font-size: 1.5rem;
+  color: var(--accent-color);
+}
+
+.tasks-section .progress-card .stat-item {
+  padding: 0.9rem;
+  border-radius: 0.6rem;
+}
+
+.tasks-section .progress-card .stat-item-value {
+  font-size: 1.15rem;
+}
+
+/* Add Task Card */
+.add-task-card {
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  animation: fadeInUp 0.7s ease;
+}
+
+/* Merged-page tweaks: improve add-task form and time-progress card visuals
+   These rules apply when the tasks design is used inside the goal show page.
+   They intentionally do not change task list visuals. */
+.tasks-section .add-task-card {
+  padding: 1.75rem;
+}
+
+.tasks-section .add-task-card label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.tasks-section .add-task-card .form-input,
+.tasks-section .add-task-card .form-select {
+  padding: 0.7rem 0.9rem;
+  border: 2px solid var(--glass-border);
+  border-radius: 0.75rem;
+  background: var(--glass-bg);
+  transition: all var(--transition-normal);
+  font-size: 0.95rem;
+}
+
+.tasks-section .add-task-card .form-input:focus,
+.tasks-section .add-task-card .form-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 5px rgba(59,130,246,0.06);
+}
+
+.tasks-section .add-task-card .form-row {
+  display: grid;
+  grid-template-columns: 1fr 220px 140px 120px;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.tasks-section .add-task-card .form-row .form-group { margin-bottom: 0; }
+
+@media (max-width: 1024px) {
+  .tasks-section .add-task-card .form-row {
+    grid-template-columns: 1fr 160px;
+  }
+}
+
+/* Make description textarea fill vertical space in the add-task card */
+.add-task-grid {
+  align-items: stretch;
+}
+.add-task-grid .left-col {
+  display: flex;
+  flex-direction: column;
+}
+.add-task-grid .left-col textarea.form-input {
+  flex: 1 1 auto;
+  min-height: 211px;
+  resize: vertical;
+}
+
+@media (max-width: 768px) {
+  .tasks-section .add-task-card .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--accent-color);
+  font-weight: 700;
+}
+
+.add-task-form .form-row {
+  display: grid;
+  /* give the title field more space and fixed widths for date & button */
+  grid-template-columns: 1fr 220px 160px;
+  gap: 1rem;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-input {
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-color);
+  font-size: 1.05rem;
+  font-family: "Josefin Slab", serif;
+  transition: all var(--transition-normal);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+}
+
+.form-error {
+  font-size: 0.875rem;
+  color: #ef4444;
+  margin-top: 0.5rem;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.9rem 1.6rem;
+  border: none;
+  border-radius: 0.6rem;
+  font-size: 1.03rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "Josefin Slab", serif;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-color), var(--highlight-color));
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--accent-hover), var(--highlight-hover));
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-color);
+}
+
+.btn-ghost:hover {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Tasks List */
+.tasks-list {
+  animation: fadeInUp 0.8s ease;
+}
+
+.tasks-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Task Item */
+.task-item {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  cursor: auto;
+  animation: slideInTaskSmooth 0.5s ease-out;
+}
+
+.task-item:hover {
+  transform: translateX(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.task-item.completed {
+  opacity: 0.45;
+  position: relative;
+}
+
+.task-item.completed::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.task-item.completed .task-name {
+  text-decoration: line-through;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  opacity: 0.6;
+  font-weight: 500;
+}
+
+/* Custom Checkbox */
+.task-checkbox {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.task-check {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--glass-border);
+  border-radius: 6px;
+  background: var(--glass-bg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.task-check:checked {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.task-check-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  font-weight: bold;
+  font-size: 1rem;
+  color: white;
+}
+
+.task-check:checked + .task-check-label::after {
+  content: '✓';
+}
+
+/* Task Content */
+.task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Link-styled task content */
+.task-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  padding: 0.125rem 0;
+  transition: color 0.2s ease, transform 0.18s ease;
+}
+
+.task-link:hover .task-name {
+  color: var(--accent-color);
+  transform: translateX(4px);
+}
+
+.task-link:focus {
+  outline: none;
+}
+
+/* Priority icon spacing inside name */
+.task-name {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  color: var(--text-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.task-name .priority-dot {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.task-name .priority-high { background: #ff3b30; }
+.task-name .priority-medium { background: #f59e0b; }
+.task-name .priority-low { background: #22c55e; }
+
+.task-name {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.task-date {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin: 0;
+  color: var(--text-color);
+}
+
+/* Task Actions */
+.task-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.task-edit,
+.task-delete {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 244, 97, 0.1);
+  color: #f6d73b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.task-edit:hover {
+  background: #f6ab3b;
+  color: white;
+  transform: scale(1.1);
+}
+
+.task-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.task-delete:hover {
+  background: #ef4444;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Empty State */
+.empty-state {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.empty-subtitle {
+  font-size: 0.95rem;
+  opacity: 0.7;
+  color: var(--text-color);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInTaskSmooth {
+  from {
+    opacity: 0;
+    transform: translateX(30px) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes scalePopTask {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* Inline Form */
+.inline-form {
+  display: inline;
+}
+
+/* Text Center */
+.text-center {
+  text-align: center;
+}
+
+.mt-8 {
+  margin-top: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .goal-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .add-task-form .form-row {
+    grid-template-columns: 1fr auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .tasks-section {
+    padding: 5rem 1.5rem 2rem;
+  }
+
+  .goal-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .goal-title {
+    font-size: 1.5rem;
+  }
+
+  .goal-meta {
+    justify-content: center;
+  }
+
+  .add-task-form .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .task-item {
+    padding: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .task-item:hover {
+    transform: none;
+  }
+
+  .task-name {
+    font-size: 1rem;
+  }
+
+  .task-content {
+    width: 100%;
+    order: 3;
+  }
+
+  .task-actions {
+    width: 100%;
+    justify-content: flex-end;
+    order: 4;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .tasks-section {
+  direction: rtl;
+}
+
+[dir="rtl"] .task-item:hover {
+  transform: translateX(5px);
+}
+
+[dir="rtl"] .add-task-form .form-row {
+  direction: rtl;
+}
+
+[dir="rtl"] .form-input,
+[dir="rtl"] .form-label {
+  text-align: right;
+}
+
+
+
+/* Goal Header */
+.goal-header {
+  padding: 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: fadeInUp 0.6s ease;
+}
+
+.goal-info {
+  flex: 1;
+}
+
+.goal-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent-color);
+}
+
+.goal-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.goal-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.goal-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.priority-high {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+/* Progress Circle */
+.goal-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-circle {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+/* Add Task Card */
+.add-task-card {
+  padding: 2rem;
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.7s ease;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--accent-color);
+}
+
+.add-task-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+/* Tasks List */
+.tasks-list {
+  animation: fadeInUp 0.8s ease;
+}
+
+.tasks-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Task Item */
+.task-item {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.task-item:hover {
+  transform: translateX(-5px);
+}
+
+.task-item.completed {
+  opacity: 0.45;
+  position: relative;
+}
+
+.task-item.completed::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.task-item.completed .task-name {
+  text-decoration: line-through;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  opacity: 0.6;
+  font-weight: 500;
+}
+
+/* Custom Checkbox */
+.task-checkbox {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.task-check {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--glass-border);
+  border-radius: 6px;
+  background: var(--glass-bg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.task-check:checked {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.task-check-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.task-check:checked + .task-check-label::after {
+  content: '✓';
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Task Content */
+.task-content {
+  flex: 1;
+}
+
+.task-name {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+
+.task-date {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* Delete Button */
+.task-delete {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.task-delete:hover {
+  background: #ef4444;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Priority Badges */
+.priority-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.priority-badge.priority-high {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.priority-badge.priority-medium {
+  background: rgba(217, 119, 6, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.priority-badge.priority-low {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Overdue Badge */
+.overdue-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Overdue Task Styling */
+.task-item.overdue {
+  border-left: 4px solid #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.task-item.overdue::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top-right, rgba(239, 68, 68, 0.1), transparent);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Completed Task Styling */
+.task-item.completed {
+  opacity: 0.7;
+}
+
+.task-item.completed .task-name {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* Task Grid Improvements */
+.tasks-section .tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .goal-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .goal-title {
+    font-size: 1.5rem;
+  }
+
+  .goal-meta {
+    justify-content: center;
+  }
+
+  .add-task-form .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .task-item {
+    padding: 1rem;
+  }
+
+  .task-item:hover {
+    transform: none;
+  }
+
+  .task-name {
+    font-size: 1rem;
+  }
+
+  .add-task-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -126,7 +126,7 @@
         </section>
 
         <!-- Features Section -->
-        <section class="py-24 bg-white/30 backdrop-blur-sm">
+        <section id="features" class="py-24 bg-white/30 backdrop-blur-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16 animate-on-load">
                     <h2 class="text-4xl font-bold mb-4">المميزات الرئيسية</h2>
@@ -232,10 +232,9 @@
         </section>
 
         <!-- Footer -->
-        <footer class="py-12 text-center text-slate-600 border-t border-slate-200/30 glass">
-            <div class="max-w-7xl mx-auto px-4">
-                <p class="mb-2">© {{ date('Y') }} {{ config('app.name') }} • جميع الحقوق محفوظة</p>
-                <p class="text-sm">تم التطوير بعناية فائقة • MADE BY BIN SAEED 💫</p>
+        <footer class="footer">
+            <div class="container">
+                <p class="footer-text">جميع الحقوق محفوظة.© 2025 MADE BY BIN SAEED.</p>
             </div>
         </footer>
 
